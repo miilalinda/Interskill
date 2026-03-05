@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('home');
@@ -23,8 +24,17 @@ Route::get('/perfil/atualizar/{user}', [UserController::class, 'edit'])->name('u
 Route::post('/cadastre-se', [UserController::class, 'store'])->name('users.store');
 Route::delete('/remover-conta/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 Route::put('/perfil/atualizar/{user}', [UserController::class, 'update'])->name('users.update');
+//
+// LOGIN
+//
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-// Route::get();
-// Route::get();
-// Route::get();
+Route::middleware('auth')->group(function () {
+    Route::get('/perfil/atualizar/{user}', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/perfil/atualizar/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/remover-conta/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+});

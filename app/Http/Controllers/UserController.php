@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -48,7 +49,7 @@ class UserController extends Controller
             'user_nome' => $request->user_nome,
             'email' => $request->email,
             'cpf' => $request->cpf,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
             'foto_perfil' => $caminho
         ]);
 

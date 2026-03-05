@@ -45,13 +45,24 @@
             <a class="navbar-brand fw-bold" href="#">MinhaRede</a>
 
             <div class="ms-auto">
-                <a href="#" class="btn btn-light btn-sm">
-                    Login
-                </a>
 
-                <a href="{{ route('users.create') }}" class="btn btn-light btn-sm">
-                    Cadastre-se
-                </a>
+                @auth
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button class="btn btn-light btn-sm">
+                            Sair
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-light btn-sm">
+                        Login
+                    </a>
+
+                    <a href="{{ route('users.create') }}" class="btn btn-light btn-sm">
+                        Cadastre-se
+                    </a>
+                @endauth
+
             </div>
         </div>
     </nav>
