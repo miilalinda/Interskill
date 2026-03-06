@@ -19,7 +19,8 @@ class UserController extends Controller
     // Mostra o perfil do usuarios
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        $posts = $user->posts()->latest()->get();
+        return view('users.show', compact('user', 'posts'));
     }
 
     public function create()

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Minha Rede Social')</title>
+    <title>@yield('title', 'Interskill')</title>
 
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -42,7 +42,7 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#">MinhaRede</a>
+            <a class="navbar-brand fw-bold" href="#">INTERSKILL</a>
 
             <div class="ms-auto">
 
@@ -74,7 +74,7 @@
             <div class="col-md-3 col-lg-2 d-md-block sidebar collapse show">
                 <div class="pt-3">
                     <a href="{{ route('home') }}">🏠 Home</a>
-                    <a href="#">👤 Perfil</a>
+                    <a href="{{ route('users.show', auth()->user()->id) }}">👤 Perfil</a>
                     <a href="#">🔎 Explorar</a>
                     <a href="#">⚙️ Configurações</a>
                 </div>
