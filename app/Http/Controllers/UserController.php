@@ -8,26 +8,28 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Retorna a pagina com a lista de usuarios
+    // Lista todos os usuários (página administrativa)
     public function index()
     {
-        $users = User::all(); // Pega todos os usuarios cadastrados
-
+        $users = User::all(); // Pega todos os usuários cadastrados
         return view('users.index', compact('users'));
     }
 
-    // Mostra o perfil do usuarios
+    // Mostra o perfil de um usuário específico
     public function show(User $user)
     {
+        // Pega os posts do usuário, mais recentes primeiro
         $posts = $user->posts()->latest()->get();
         return view('users.show', compact('user', 'posts'));
     }
 
+    // Página de cadastro de usuário
     public function create()
     {
         return view('users.create');
     }
 
+    // Salva um novo usuário no banco de dados
     public function store(Request $request)
     {
         $request->validate([
@@ -56,11 +58,14 @@ class UserController extends Controller
 
         return redirect()->route('users.index');
     }
+
+    // Página para editar usuário
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
 
+    // Atualiza os dados de um usuário
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -80,9 +85,17 @@ class UserController extends Controller
         return redirect()->route('users.index');
     }
 
+    // Deleta um usuário
     public function destroy(User $user)
     {
         $user->delete();
         return redirect()->route('users.index');
+    }
+
+    // Nova função: Explorar perfis
+    public function explore()
+    {
+        $users = User::all();
+        return view('users.explore', compact('users'));
     }
 }

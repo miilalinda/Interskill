@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
             display: block;
             padding: 12px 20px;
             text-decoration: none;
-            color: #333;
+            color: #000000;
             font-weight: 500;
         }
 
@@ -37,6 +38,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- NAVBAR -->
@@ -71,14 +73,17 @@
         <div class="row">
 
             <!-- SIDEBAR -->
-            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse show">
-                <div class="pt-3">
-                    <a href="{{ route('home') }}">🏠 Home</a>
-                    <a href="{{ route('users.show', auth()->user()->id) }}">👤 Perfil</a>
-                    <a href="#">🔎 Explorar</a>
-                    <a href="#">⚙️ Configurações</a>
+            @auth
+                <div class="col-md-3 col-lg-2 d-md-block sidebar collapse show">
+                    <div class="pt-3">
+                        <a href="{{ route('home') }}">🏠 Home</a>
+                        <a href="{{ route('users.show', auth()->user()->id) }}">👤 Perfil</a>
+                        <a href="#">🔎 Explorar</a>
+                        <a href="#">💬 Mensagens</a>
+                        <a href="#">⚙️ Configurações</a>
+                    </div>
                 </div>
-            </div>
+            @endauth
 
             <!-- CONTEÚDO -->
             <main class="col-md-9 ms-sm-auto col-lg-10 content-area">
@@ -91,4 +96,5 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
