@@ -35,14 +35,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ROTAS PROTEGIDAS
 //
 Route::middleware('auth')->group(function () {
-    // Route::get('/', [PostController::class, 'index'])->name('home');
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
-    // Route::get('/posts/criar', [PostController::class, 'create'])->name('posts.create');
-    // Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    // Route::get('/posts/{post}/editar', [PostController::class, 'edit'])->name('posts.edit');
-    // Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
-    // Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+Route::get('/', [PostController::class, 'index'])->name('home');
+Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
+Route::post('/posts/{post}/comment', [PostController::class, 'comment'])->name('posts.comment');
+
 });
 // Rota para explorar perfis
 Route::get('/explorar', [UserController::class, 'explore'])->name('users.explore');
+
+

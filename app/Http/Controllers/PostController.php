@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostMedia;
+use App\Models\Like;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -59,4 +61,39 @@ class PostController extends Controller
         $post->delete();
         return back()->with('sucesso', 'Postagem excluída.');
     }
+
+    public function like(Post $post)
+    {
+        Like::create([
+            'user_id' => auth()->id(),
+            'post_id' => $post->id
+        ]);
+
+        return back();
+    }
+
+    public function comment(Request $request, Post $post)
+    {
+
+        $request->validate([
+            'texto' => 'required'
+        ]);
+
+        Comment::create([
+            'user_id' => auth()->id(),
+            'post_id' => $post->id,
+            'texto' => $request->texto
+        ]);
+
+        return back();
+    }
+
+    public function index()
+{
+    $posts = Post::with(['user','medias','likes','comments'])
+    ->latest()
+    ->get();
+
+    return view('posts.index', compact('posts'));
+}
 }
