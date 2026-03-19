@@ -36,6 +36,23 @@
         .content-area {
             padding: 30px;
         }
+
+        /* 🔥 ADICIONA ISSO */
+        .media-post {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
     </style>
 </head>
 

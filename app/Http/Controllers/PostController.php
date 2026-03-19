@@ -64,10 +64,22 @@ class PostController extends Controller
 
     public function like(Post $post)
     {
-        Like::create([
-            'user_id' => auth()->id(),
-            'post_id' => $post->id
-        ]);
+        $user = auth()->user();
+
+        $like = Like::where('user_id', $user->id)
+                    ->where('post_id', $post->id)
+                    ->first();
+
+        if ($like) {
+            // já curtiu → remove (descurtir)
+            $like->delete();
+        } else {
+            // não curtiu → cria
+            Like::create([
+                'user_id' => $user->id,
+                'post_id' => $post->id
+            ]);
+        }
 
         return back();
     }
