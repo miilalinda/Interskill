@@ -14,6 +14,9 @@ class PostController extends Controller
 {
     public function store(Request $request)
     {
+
+
+
         // Validação: Exige texto OU arquivo. Não permite post vazio.
         $request->validate([
             'corpo' => 'required_without:arquivos|nullable|string',
@@ -54,7 +57,7 @@ class PostController extends Controller
         }
 
         // Deleta arquivos do disco
-        foreach ($post->media as $media) {
+        foreach ($post->medias as $media) {
             Storage::disk('public')->delete($media->caminho);
         }
 
@@ -108,4 +111,6 @@ class PostController extends Controller
 
     return view('posts.index', compact('posts'));
 }
+
+
 }

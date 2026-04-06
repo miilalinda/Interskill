@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - INTERSKILL</title>
+    <title>Login - SkillXchange</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="bg-blob blob-2"></div>
 
     <div class="glass-panel">
-        <h1>INTERSKILL</h1>
+        <h1>SkillXchange</h1>
         <p class="subtitle">Bem-vindo de volta, conecte-se para trocar habilidades.</p>
 
         <form action="feed.html">
@@ -29,7 +29,7 @@
 
             <div class="links-container">
                 <a href="#">Esqueceu a senha?</a>
-                <a href="#">Criar nova conta</a>
+                <a href="register.html">Criar nova conta</a>
             </div>
         </form>
     </div>

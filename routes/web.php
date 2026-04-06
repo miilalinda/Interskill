@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\MidiaController;
 
 //
 // USUARIOS
@@ -23,11 +24,13 @@ Route::post('/cadastre-se', [UserController::class, 'store'])->name('users.store
 Route::get('/usuarios/{user}/editar', [UserController::class, 'edit'])->name('users.edit');
 Route::put('/usuarios/{user}', [UserController::class, 'update'])->name('users.update');
 Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+Route::delete('/midia/{id}', [MidiaController::class, 'destroy'])->name('midia.destroy');
 
 //
 // LOGIN
 //
 Route::get('/login', [AuthController::class, 'login'])->name('login');
+
 Route::post('/login', [AuthController::class, 'attempt'])->name('login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
