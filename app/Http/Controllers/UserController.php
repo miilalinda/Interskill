@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -47,7 +48,7 @@ class UserController extends Controller
             $caminho = $request->file('foto_perfil')->store('usuarios', 'public');
         }
 
-        User::create([
+        $user = User::create([
             'nome' => $request->nome,
             'user_nome' => $request->user_nome,
             'email' => $request->email,
@@ -56,7 +57,9 @@ class UserController extends Controller
             'foto_perfil' => $caminho
         ]);
 
-        return redirect()->route('users.index');
+        Auth::login($user);
+
+        return redirect()->route('users.show', $user->id);
     }
 
     // Página para editar usuário

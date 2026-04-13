@@ -3,36 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SkillXchange</title>
+    <title>Login - INTERSKILL</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-
-    <div class="glass-panel">
-        <h1>SkillXchange</h1>
-        <p class="subtitle">Bem-vindo de volta, conecte-se para trocar habilidades.</p>
-
-        <form action="feed.html">
-            <div class="form-group">
-                <label for="email">Endereço de Email</label>
-                <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" class="form-input" placeholder="••••••••" required>
-            </div>
-
-            <button type="submit" class="btn-primary">Entrar na Plataforma</button>
-
-            <div class="links-container">
-                <a href="#">Esqueceu a senha?</a>
-                <a href="register.html">Criar nova conta</a>
-            </div>
-        </form>
-    </div>
+    @yield('content')
 </body>
 </html>
 

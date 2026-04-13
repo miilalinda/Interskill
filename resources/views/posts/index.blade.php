@@ -34,7 +34,7 @@
 
                             @if ($midia->tipo == 'imagem')
                                 <img src="{{ asset('storage/' . $midia->caminho) }}"
-                                     class="img-fluid rounded media-post">
+                            class="img-fluid rounded media-post">
                             @else
                                 <video src="{{ asset('storage/' . $midia->caminho) }}"
                                     class="img-fluid rounded media-post" controls>

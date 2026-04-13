@@ -49,4 +49,3 @@ Route::post('/posts/{post}/comment', [PostController::class, 'comment'])->name('
 // Rota para explorar perfis
 Route::get('/explorar', [UserController::class, 'explore'])->name('users.explore');
 
-

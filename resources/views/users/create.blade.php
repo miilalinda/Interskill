@@ -1,90 +1,78 @@
-@extends('layouts.auth')
+@extends('auth.template')
 
-@section('title', 'Criar Usuário')
+@section('title', 'Cadastro')
 
 @section('content')
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
 
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Criar Usuário</h4>
-                    </div>
+<div class="glass-panel">
+    <h1>INTERSKILL</h1>
+    <p class="subtitle">Crie sua conta e comece a trocar habilidades.</p>
 
-                    <div class="card-body">
+    {{-- ERROS --}}
+    @if ($errors->any())
+        <div style="color: #f87171; margin-bottom: 15px;">
+            @foreach ($errors->all() as $erro)
+                <div>{{ $erro }}</div>
+            @endforeach
+        </div>
+    @endif
 
-                        {{-- Exibição de erros --}}
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+    <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data">
+        @csrf
 
-                        <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data">
-                            @csrf
+        <!-- Nome -->
+        <div class="form-group">
+            <label>Nome</label>
+            <input type="text" name="nome" class="form-input" value="{{ old('nome') }}" required>
+        </div>
 
-                            <!-- Nome -->
-                            <div class="mb-3">
-                                <label class="form-label">Nome</label>
-                                <input type="text" name="nome"
-                                    class="form-control @error('nome') is-invalid @enderror" value="{{ old('nome') }}">
-                            </div>
+        <!-- Email -->
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-input" value="{{ old('email') }}" required>
+        </div>
 
-                            <!-- Email -->
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email"
-                                    class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}">
-                            </div>
+        <!-- CPF -->
+        <div class="form-group">
+            <label>CPF</label>
+            <input type="text" name="cpf" class="form-input" value="{{ old('cpf') }}" required>
+        </div>
 
-                            <!-- CPF -->
-                            <div class="mb-3">
-                                <label class="form-label">CPF</label>
-                                <input type="text" name="cpf" class="form-control @error('cpf') is-invalid @enderror"
-                                    value="{{ old('cpf') }}">
-                            </div>
+        <!-- Username -->
+        <div class="form-group">
+            <label>Nome de Usuário</label>
+            <input type="text" name="user_nome" class="form-input" value="{{ old('user_nome') }}" required>
+        </div>
 
-                            <!-- Senha -->
-                            <div class="mb-3">
-                                <label class="form-label">Senha</label>
-                                <input type="password" name="password"
-                                    class="form-control @error('password') is-invalid @enderror">
-                            </div>
+        <!-- Senha -->
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" name="password" class="form-input" required>
+        </div>
 
-                            <!-- Nome de usuário -->
-                            <div class="mb-3">
-                                <label class="form-label">Nome de Usuário</label>
-                                <input type="text" name="user_nome"
-                                    class="form-control @error('user_nome') is-invalid @enderror"
-                                    value="{{ old('user_nome') }}">
-                            </div>
+        <!-- Foto -->
+        <div class="form-group">
+            <label>Foto de Perfil</label>
 
-                            <!-- Foto de Perfil -->
-                            <div class="mb-3">
-                                <label class="form-label">Foto de Perfil</label>
-                                <input type="file" name="foto_perfil" class="form-control">
-                            </div>
-
-                            <!-- Botão -->
-                            <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">
-                                    Salvar
-                                </button>
-                            </div>
-
-                        </form>
-
-                    </div>
+            <div class="file-upload-wrapper">
+                <input type="file" name="foto_perfil" class="file-upload-input">
+                <div class="file-upload-text">
+                    Clique para enviar uma imagem
                 </div>
-
             </div>
         </div>
-    </div>
+
+        <button type="submit" class="btn-primary">
+            Criar Conta
+        </button>
+
+        <div class="links-container">
+            <a href="{{ route('login') }}">Já tenho conta</a>
+        </div>
+    </form>
+</div>
 
 @endsection
