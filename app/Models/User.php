@@ -2,22 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Post;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'nome',
         'user_nome',
@@ -27,39 +18,38 @@ class User extends Authenticatable
         'foto_perfil'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-
-    /**
-     * Relacionamento com posts
-     */
+    // POSTS
     public function posts()
     {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(\App\Models\Post::class);
     }
 
-    public function likes()
+    // QUEM EU SIGO
+    public function following()
     {
-        return $this->hasMany(\App\Models\Like::class);
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'user_id');
     }
+
+    // QUEM ME SEGUE
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
+    }
+
+    // PARCERIAS RECEBIDAS
+public function parceriasRecebidas()
+{
+    return $this->hasMany(\App\Models\Parceria::class, 'user_id');
+}
+
+// PARCERIAS ENVIADAS
+public function parceriasEnviadas()
+{
+    return $this->hasMany(\App\Models\Parceria::class, 'solicitante_id');
+}
 }

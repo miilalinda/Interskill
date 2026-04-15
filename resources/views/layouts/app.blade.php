@@ -95,8 +95,8 @@
                     <div class="pt-3">
                         <a href="{{ route('home') }}">🏠 Home</a>
                         <a href="{{ route('users.show', auth()->user()->id) }}">👤 Perfil</a>
-                        <a href="#">🔎 Explorar</a>
-                        <a href="#">💬 Mensagens</a>
+                        <a href="{{ route('users.explore') }}">🔎 Explorar</a>
+                        <a href="{{ route('chat.inbox') }}">📩 Mensagens</a>
                         <a href="#">⚙️ Configurações</a>
                     </div>
                 </div>
@@ -113,5 +113,15 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+<script>
+    setInterval(() => {
+        fetch('/notificacoes')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('notif').innerText = data.count;
+            });
+    }, 5000);
+</script>
 
 </html>

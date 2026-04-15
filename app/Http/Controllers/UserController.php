@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Parceria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -96,9 +97,72 @@ class UserController extends Controller
     }
 
     // Nova função: Explorar perfis
-    public function explore()
-    {
-        $users = User::all();
-        return view('users.explore', compact('users'));
-    }
+    // EXPLORAR
+public function explore()
+{
+    $users = User::where('id', '!=', auth()->id())
+        ->withCount(['posts', 'followers', 'following'])
+        ->latest()
+        ->paginate(9);
+
+    return view('users.explore', compact('users'));
+}
+
+// SEGUIR
+public function follow(User $user)
+{
+    auth()->user()->following()->syncWithoutDetaching([$user->id]);
+    return back();
+}
+
+// DEIXAR DE SEGUIR
+public function unfollow(User $user)
+{
+    auth()->user()->following()->detach($user->id);
+    return back();
+}
+
+// ENVIAR SOLICITAÇÃO
+public function solicitarParceria(User $user)
+{
+    Parceria::firstOrCreate(
+        [
+            'user_id' => $user->id,
+            'solicitante_id' => auth()->id(),
+        ],
+        [
+            'status' => 'pendente'
+        ]
+    );
+
+    return back();
+}
+
+// ACEITAR
+public function aceitarParceria($id)
+{
+    $parceria = Parceria::findOrFail($id);
+    $parceria->update(['status' => 'aceito']);
+
+    return back();
+}
+
+// RECUSAR
+public function recusarParceria($id)
+{
+    $parceria = Parceria::findOrFail($id);
+    $parceria->update(['status' => 'recusado']);
+
+    return back();
+}
+
+public function parcerias()
+{
+    $parcerias = \App\Models\Parceria::with('solicitante')
+        ->where('user_id', auth()->id())
+        ->where('status', 'pendente')
+        ->get();
+
+    return view('users.parcerias', compact('parcerias'));
+}
 }
