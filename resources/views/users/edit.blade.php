@@ -1,92 +1,168 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Usuário')
-
 @section('content')
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+    <style>
+        .profile-card {
+            max-width: 500px;
+            margin: auto;
+            border-radius: 20px;
+        }
 
-                <div class="card shadow-sm">
-                    <div class="card-header bg-warning">
-                        <h4 class="mb-0">Editar Usuário</h4>
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid #673cd4;
+            padding: 3px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .btn-save {
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .btn {
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+
+    <div class="container mt-4">
+
+        <div class="card profile-card shadow">
+
+            <div class="card-body">
+
+                <h4 class="mb-4 text-center">✏️ Editar Perfil</h4>
+
+                {{-- ERROS --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        @foreach ($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- FOTO --}}
+                    <div class="text-center mb-4">
+
+                        <label for="fotoInput">
+
+                            @if ($user->foto_perfil)
+                                <img id="preview" src="{{ asset('storage/' . $user->foto_perfil) }}"
+                                    class="avatar-preview">
+                            @else
+                                <img id="preview" src="https://ui-avatars.com/api/?name={{ urlencode($user->nome) }}"
+                                    class="avatar-preview">
+                            @endif
+
+                        </label>
+
+                        <input type="file" name="foto_perfil" id="fotoInput" class="file-input">
+
+                        <div class="text-muted mt-2" style="font-size: 0.85rem;">
+                            Clique para trocar a foto
+                        </div>
                     </div>
 
-                    <div class="card-body">
+                    {{-- NOME --}}
+                    <div class="mb-3">
+                        <label>Nome</label>
+                        <input type="text" name="nome" class="form-control" value="{{ old('nome', $user->nome) }}">
+                    </div>
 
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+                    {{-- USERNAME --}}
+                    <div class="mb-3">
+                        <label>Nome de usuário</label>
+                        <input type="text" name="user_nome" class="form-control"
+                            value="{{ old('user_nome', $user->user_nome) }}">
+                    </div>
 
-                        <form method="POST" action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
+                    {{-- EMAIL --}}
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly>
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nome</label>
-                                <input type="text" name="nome" class="form-control"
-                                    value="{{ old('nome', $user->nome) }}">
-                            </div>
+                    <div class="mb-3">
+                        <label>CPF</label>
+                        <input type="text" class="form-control bg-light" value="{{ $user->cpf }}" readonly>
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control"
-                                    value="{{ old('email', $user->email) }}">
-                            </div>
+                    {{-- SENHA --}}
+                    <div class="mb-3">
+                        <label>Nova senha</label>
+                        <input type="password" name="password" id="senha" class="form-control">
 
-                            <div class="mb-3">
-                                <label class="form-label">CPF</label>
-                                <input type="text" name="cpf" class="form-control"
-                                    value="{{ old('cpf', $user->cpf) }}">
-                            </div>
+                        <span onclick="toggleSenha()" style="position:absolute; right:10px; top:38px; cursor:pointer;">
+                            👁️
+                        </span>
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nova Senha (opcional)</label>
-                                <input type="password" name="password" class="form-control">
-                            </div>
+                    <div class="mb-3">
+                        <label>Confirmar nova senha</label>
+                        <input type="password" name="password_confirmation" class="form-control">
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nome de Usuário</label>
-                                <input type="text" name="user_nome" class="form-control"
-                                    value="{{ old('user_nome', $user->user_nome) }}">
-                            </div>
+                    {{-- BOTÕES --}}
+                    <div class="d-flex justify-content-between mt-4">
 
-                            <div class="mb-3">
-                                <label class="form-label">Foto de Perfil</label>
-                                <input type="file" name="foto_perfil" class="form-control">
+                        <a href="{{ route('users.show', $user->id) }}" class="btn btn-sm btn-outline-secondary">
+                            ← Voltar
+                        </a>
 
-                                @if ($user->foto_perfil)
-                                    <div class="mt-3">
-                                        <img src="{{ asset('storage/' . $user->foto_perfil) }}" width="80"
-                                            class="rounded-circle">
-                                    </div>
-                                @endif
-                            </div>
+                        <div class="mb-3">
+                            <label>Senha atual (obrigatório para salvar)</label>
+                            <input type="password" name="senha_atual" class="form-control" required>
+                        </div>
 
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                    Voltar
-                                </a>
-
-                                <button type="submit" class="btn btn-warning">
-                                    Atualizar
-                                </button>
-                            </div>
-
-                        </form>
+                        <button class="btn btn-sm btn-primary px-4">
+                            💾 Salvar
+                        </button>
 
                     </div>
-                </div>
+
+                </form>
 
             </div>
         </div>
+
     </div>
+
+    {{-- PREVIEW DA IMAGEM --}}
+    <script>
+        document.getElementById('fotoInput').addEventListener('change', function(e) {
+            const [file] = this.files;
+            if (file) {
+                document.getElementById('preview').src = URL.createObjectURL(file);
+            }
+        });
+    </script>
+
+    <script>
+        function toggleSenha() {
+            const input = document.getElementById('senha');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
 
 @endsection

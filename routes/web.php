@@ -17,8 +17,8 @@ Route::get('/usuarios/{user}', [UserController::class, 'show'])->name('users.sho
 Route::get('/cadastre-se', [UserController::class, 'create'])->name('users.create');
 Route::post('/cadastre-se', [UserController::class, 'store'])->name('users.store');
 
-Route::get('/usuarios/{user}/editar', [UserController::class, 'edit'])->name('users.edit');
-Route::put('/usuarios/{user}', [UserController::class, 'update'])->name('users.update');
+Route::get('/perfil/{user}/editar', [UserController::class, 'edit'])->name('users.edit');
+Route::put('/perfil/{user}', [UserController::class, 'update'])->name('users.update');
 Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
 Route::delete('/midia/{id}', [MidiaController::class, 'destroy'])->name('midia.destroy');

@@ -19,11 +19,16 @@ class UserController extends Controller
 
     // Mostra o perfil de um usuário específico
     public function show(User $user)
-    {
-        // Pega os posts do usuário, mais recentes primeiro
-        $posts = $user->posts()->latest()->get();
-        return view('users.show', compact('user', 'posts'));
-    }
+{
+    $user->loadCount(['posts', 'followers', 'following']);
+
+    $posts = $user->posts()
+        ->with(['medias', 'likes', 'comments', 'user'])
+        ->latest()
+        ->get();
+
+    return view('users.show', compact('user', 'posts'));
+}
 
     // Página de cadastro de usuário
     public function create()
@@ -70,24 +75,46 @@ class UserController extends Controller
     }
 
     // Atualiza os dados de um usuário
-    public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'nome' => 'required',
-            'user_nome' => 'required|unique:users,user_nome,' . $user->id,
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'cpf' => 'required|unique:users,cpf,' . $user->id,
-        ]);
+   public function update(Request $request, User $user)
+{
+    // ✅ VALIDAÇÃO
+    $request->validate([
+        'nome' => 'required',
+        'user_nome' => 'required|unique:users,user_nome,' . $user->id,
+        'foto_perfil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'senha_atual' => 'required',
+        'password' => 'nullable|min:6|confirmed'
+    ]);
 
-        $user->update([
-            'nome' => $request->nome,
-            'user_nome' => $request->user_nome,
-            'email' => $request->email,
-            'cpf' => $request->cpf,
-        ]);
-
-        return redirect()->route('users.index');
+    // 🔒 CONFIRMAR SENHA ATUAL
+    if (!Hash::check($request->senha_atual, $user->password)) {
+        return back()->withErrors(['senha_atual' => 'Senha atual incorreta']);
     }
+
+    // ✅ ATUALIZA DADOS PERMITIDOS
+    $user->nome = $request->nome;
+    $user->user_nome = $request->user_nome;
+
+    // 🚫 NÃO ALTERA MAIS
+    // $user->email = ...
+    // $user->cpf = ...
+
+    // 📸 FOTO
+    if ($request->hasFile('foto_perfil')) {
+        $caminho = $request->file('foto_perfil')->store('usuarios', 'public');
+        $user->foto_perfil = $caminho;
+    }
+
+    // 🔑 SENHA NOVA (opcional)
+    if ($request->password) {
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->save();
+
+    return redirect()->route('users.show', $user->id)
+        ->with('success', 'Perfil atualizado com sucesso!');
+}
 
     // Deleta um usuário
     public function destroy(User $user)
@@ -98,71 +125,71 @@ class UserController extends Controller
 
     // Nova função: Explorar perfis
     // EXPLORAR
-public function explore()
-{
-    $users = User::where('id', '!=', auth()->id())
-        ->withCount(['posts', 'followers', 'following'])
-        ->latest()
-        ->paginate(9);
+    public function explore()
+    {
+        $users = User::where('id', '!=', auth()->id())
+            ->withCount(['posts', 'followers', 'following'])
+            ->latest()
+            ->paginate(9);
 
-    return view('users.explore', compact('users'));
-}
+        return view('users.explore', compact('users'));
+    }
 
-// SEGUIR
-public function follow(User $user)
-{
-    auth()->user()->following()->syncWithoutDetaching([$user->id]);
-    return back();
-}
+    // SEGUIR
+    public function follow(User $user)
+    {
+        auth()->user()->following()->syncWithoutDetaching([$user->id]);
+        return back();
+    }
 
-// DEIXAR DE SEGUIR
-public function unfollow(User $user)
-{
-    auth()->user()->following()->detach($user->id);
-    return back();
-}
+    // DEIXAR DE SEGUIR
+    public function unfollow(User $user)
+    {
+        auth()->user()->following()->detach($user->id);
+        return back();
+    }
 
-// ENVIAR SOLICITAÇÃO
-public function solicitarParceria(User $user)
-{
-    Parceria::firstOrCreate(
-        [
-            'user_id' => $user->id,
-            'solicitante_id' => auth()->id(),
-        ],
-        [
-            'status' => 'pendente'
-        ]
-    );
+    // ENVIAR SOLICITAÇÃO
+    public function solicitarParceria(User $user)
+    {
+        Parceria::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'solicitante_id' => auth()->id(),
+            ],
+            [
+                'status' => 'pendente'
+            ]
+        );
 
-    return back();
-}
+        return back();
+    }
 
-// ACEITAR
-public function aceitarParceria($id)
-{
-    $parceria = Parceria::findOrFail($id);
-    $parceria->update(['status' => 'aceito']);
+    // ACEITAR
+    public function aceitarParceria($id)
+    {
+        $parceria = Parceria::findOrFail($id);
+        $parceria->update(['status' => 'aceito']);
 
-    return back();
-}
+        return back();
+    }
 
-// RECUSAR
-public function recusarParceria($id)
-{
-    $parceria = Parceria::findOrFail($id);
-    $parceria->update(['status' => 'recusado']);
+    // RECUSAR
+    public function recusarParceria($id)
+    {
+        $parceria = Parceria::findOrFail($id);
+        $parceria->update(['status' => 'recusado']);
 
-    return back();
-}
+        return back();
+    }
 
-public function parcerias()
-{
-    $parcerias = \App\Models\Parceria::with('solicitante')
-        ->where('user_id', auth()->id())
-        ->where('status', 'pendente')
-        ->get();
+    public function parcerias()
+    {
+        $parcerias = \App\Models\Parceria::with('solicitante')
+            ->where('user_id', auth()->id())
+            ->where('status', 'pendente')
+            ->get();
 
-    return view('users.parcerias', compact('parcerias'));
-}
+        return view('users.parcerias', compact('parcerias'));
+    }
 }
