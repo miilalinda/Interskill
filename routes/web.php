@@ -38,8 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
 
     // HOME (FEED)
-    Route::get('/', [PostController::class, 'index'])->name('home');
-
+    Route::get('/', [PostController::class, 'feed'])->name('home');
     // POSTS
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
@@ -65,5 +64,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/chat/{user}', [MessageController::class, 'send'])->name('chat.send');
     Route::get('/chat/{user}/messages', [MessageController::class, 'getMessages']);
     Route::get('/inbox', [MessageController::class, 'inbox'])->name('chat.inbox');
-    Route::get('/notificacoes', [MessageController::class, 'notificacoes']);
+    
+
+    // apagar foto
+    Route::delete('/user/{user}/foto', [UserController::class, 'deleteFoto'])
+        ->name('user.deleteFoto');
+
+        // FEED
+        Route::get('/feed', [PostController::class, 'feed'])->name('feed');
+
+        Route::get('/notificacoes', function () {
+            return response()->json([
+                'count' => \App\Models\Parceria::where('user_id', auth()->id())
+                    ->where('status', 'pendente')
+                    ->count()
+            ]);
+        })->middleware('auth');
 });

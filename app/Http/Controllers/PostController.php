@@ -14,28 +14,21 @@ class PostController extends Controller
 {
     public function store(Request $request)
     {
-
-
-
-        // Validação: Exige texto OU arquivo. Não permite post vazio.
         $request->validate([
             'corpo' => 'required_without:arquivos|nullable|string',
             'arquivos' => 'nullable|array',
-            'arquivos.*' => 'file|mimes:jpg,jpeg,png,mp4,mov,avi|max:50000', // 50MB
+            'arquivos.*' => 'file|mimes:jpg,jpeg,png,mp4,mov,avi|max:50000',
         ]);
 
-        // 1. Cria o Post
         $post = Post::create([
             'user_id' => Auth::id(),
             'corpo' => $request->corpo,
         ]);
 
-        // 2. Processa os arquivos
         if ($request->hasFile('arquivos')) {
             foreach ($request->file('arquivos') as $arquivo) {
                 $caminho = $arquivo->store('posts', 'public');
 
-                // Verifica se é vídeo pelo mime-type
                 $tipo = str_contains($arquivo->getMimeType(), 'video') ? 'video' : 'imagem';
 
                 PostMedia::create([
@@ -46,50 +39,35 @@ class PostController extends Controller
             }
         }
 
-        return back()->with('sucesso', 'Postagem publicada com sucesso!');
+        return back();
     }
 
     public function destroy(Post $post)
     {
-        // Segurança: Só o dono deleta
-        if ($post->user_id !== auth()->id()) {
-            return back()->with('erro', 'Ação não permitida.');
+        if ((int)$post->user_id !== (int)auth()->id()) {
+            abort(403);
         }
 
-        // Deleta arquivos do disco
         foreach ($post->medias as $media) {
             Storage::disk('public')->delete($media->caminho);
         }
 
         $post->delete();
-        return back()->with('sucesso', 'Postagem excluída.');
-    }
-
-    public function like(Post $post)
-    {
-        $user = auth()->user();
-
-        $like = Like::where('user_id', $user->id)
-                    ->where('post_id', $post->id)
-                    ->first();
-
-        if ($like) {
-            // já curtiu → remove (descurtir)
-            $like->delete();
-        } else {
-            // não curtiu → cria
-            Like::create([
-                'user_id' => $user->id,
-                'post_id' => $post->id
-            ]);
-        }
 
         return back();
     }
 
+    public function like(Post $post)
+    {
+        $post->likes()->toggle(auth()->id());
+
+        return response()->json([
+            'likes' => $post->likes()->count()
+        ]);
+    }
+
     public function comment(Request $request, Post $post)
     {
-
         $request->validate([
             'texto' => 'required'
         ]);
@@ -103,14 +81,15 @@ class PostController extends Controller
         return back();
     }
 
-    public function index()
-{
-    $posts = Post::with(['user','medias','likes','comments'])
-    ->latest()
-    ->get();
+    public function feed()
+    {
+        $posts = Post::with([
+            'user',
+            'medias',
+            'likes',
+            'comments.user'
+        ])->latest()->get();
 
-    return view('posts.index', compact('posts'));
-}
-
-
+        return view('feed', compact('posts'));
+    }
 }

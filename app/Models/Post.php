@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\PostMedia;
 
 class Post extends Model
 {
-    protected $fillable = ['user_id', 'corpo', 'visualizacoes'];
+    protected $fillable = ['user_id', 'corpo'];
 
     public function user()
     {
@@ -22,11 +20,11 @@ class Post extends Model
 
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->belongsToMany(User::class, 'likes')->withTimestamps();
     }
 
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->latest();
     }
 }

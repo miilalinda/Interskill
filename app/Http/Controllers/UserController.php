@@ -7,6 +7,7 @@ use App\Models\Parceria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -191,5 +192,24 @@ class UserController extends Controller
             ->get();
 
         return view('users.parcerias', compact('parcerias'));
+    }
+
+    public function deleteFoto(User $user)
+    {
+        // segurança
+        if (auth()->id() !== $user->id) {
+            abort(403);
+        }
+
+        // apagar arquivo do storage
+        if ($user->foto_perfil) {
+            Storage::disk('public')->delete($user->foto_perfil);
+        }
+
+        // limpar no banco
+        $user->foto_perfil = null;
+        $user->save();
+
+        return back()->with('success', 'Foto removida!');
     }
 }

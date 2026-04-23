@@ -57,12 +57,11 @@
                 </div>
 
                 <!-- ❤️ BOTÃO DE LIKE -->
-                <form action="{{ route('posts.like', $post->id) }}" method="POST" class="mt-2">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                        ❤️ Curtir ({{ $post->likes->count() }})
-                    </button>
-                </form>
+                <button onclick="likePost({{ $post->id }})">
+                    ❤️ <span id="like-count-{{ $post->id }}">
+                        {{ $post->likes->count() }}
+                    </span>
+                </button>
 
                 <!-- 💬 FORMULÁRIO DE COMENTÁRIO -->
                 <form action="{{ route('posts.comment', $post->id) }}" method="POST" class="mt-3">
@@ -91,5 +90,23 @@
     @endforeach
 
 </div>
+
+<script>
+    function likePost(postId) {
+
+        fetch(`/posts/${postId}/like`, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById(`like-count-${postId}`).innerText = data.likes;
+        });
+
+    }
+    </script>
 
 @endsection
