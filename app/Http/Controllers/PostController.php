@@ -90,6 +90,6 @@ class PostController extends Controller
             'comments.user'
         ])->latest()->get();
 
-        return view('feed', compact('posts'));
+        return view('posts.feed', compact('posts'));
     }
 }
