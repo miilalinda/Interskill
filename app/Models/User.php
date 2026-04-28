@@ -42,14 +42,22 @@ class User extends Authenticatable
     }
 
     // PARCERIAS RECEBIDAS
-public function parceriasRecebidas()
-{
-    return $this->hasMany(\App\Models\Parceria::class, 'user_id');
-}
+    public function parceriasRecebidas()
+    {
+        return $this->hasMany(\App\Models\Parceria::class, 'user_id');
+    }
 
-// PARCERIAS ENVIADAS
-public function parceriasEnviadas()
-{
-    return $this->hasMany(\App\Models\Parceria::class, 'solicitante_id');
-}
+    // PARCERIAS ENVIADAS
+    public function parceriasEnviadas()
+    {
+        return $this->hasMany(\App\Models\Parceria::class, 'solicitante_id');
+    }
+
+    // HABILIDADES ✅
+    public function skills()
+    {
+        return $this->belongsToMany(\App\Models\Skill::class)
+                    ->withPivot('level')
+                    ->withTimestamps();
+    }
 }

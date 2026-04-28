@@ -2,9 +2,16 @@
 
 @section('content')
 
-<div class="container" style="max-width:600px;">
+<div class="container" style="max-width:800px;"> <!-- AUMENTEI LARGURA -->
 
-    <h4 class="mb-4">Feed</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0 text-primary">Feed</h4>
+
+        <!-- BOTÃO ATUALIZAR -->
+        <button onclick="location.reload()" class="btn btn-outline-primary btn-sm">
+            🔄 Atualizar
+        </button>
+    </div>
 
     @foreach ($posts as $post)
 
@@ -14,14 +21,22 @@
             <div class="d-flex justify-content-between p-3">
 
                 <div class="d-flex align-items-center">
-                    <img src="{{ $post->user->foto_perfil
-                        ? asset('storage/'.$post->user->foto_perfil)
-                        : 'https://ui-avatars.com/api/?name='.urlencode($post->user->nome) }}"
-                        class="rounded-circle me-2"
-                        width="40" height="40">
+
+                    <!-- LINK PERFIL -->
+                    <a href="{{ route('perfil.show', $post->user->id) }}">
+                        <img src="{{ $post->user->foto_perfil
+                            ? asset('storage/'.$post->user->foto_perfil)
+                            : 'https://ui-avatars.com/api/?name='.urlencode($post->user->nome) }}"
+                            class="rounded-circle me-2"
+                            width="45" height="45">
+                    </a>
 
                     <div>
-                        <strong>{{ $post->user->nome }}</strong><br>
+                        <!-- LINK PERFIL -->
+                        <a href="{{ route('perfil.show', $post->user->id) }}" class="text-decoration-none text-dark">
+                            <strong>{{ $post->user->nome }}</strong>
+                        </a><br>
+
                         <small class="text-muted">
                             {{ $post->created_at->diffForHumans() }}
                         </small>
@@ -39,25 +54,32 @@
 
             </div>
 
-            <!-- IMAGEM -->
+            <!-- IMAGEM COM LINK -->
             @if ($post->medias->count())
-                <img src="{{ asset('storage/'.$post->medias->first()->caminho) }}"
-                    class="w-100"
-                    ondblclick="likeAjax({{ $post->id }}, this)">
+                <a href="{{ route('posts.show', $post->id) }}">
+                    <img src="{{ asset('storage/'.$post->medias->first()->caminho) }}"
+                        class="w-100"
+                        style="cursor:pointer;"
+                        ondblclick="likeAjax({{ $post->id }}, this)">
+                </a>
             @endif
 
-            <!-- AÇÕES -->
+            <!-- CONTEÚDO -->
             <div class="p-3">
 
-                <button onclick="likeAjax({{ $post->id }}, this)"
-                    class="btn border-0">
-                    ❤️ <span class="like-count">{{ $post->likes->count() }}</span>
-                </button>
-
-                <p class="mt-2">
-                    <strong>{{ $post->user->nome }}</strong>
+                <!-- DESCRIÇÃO -->
+                <p class="mt-2" style="color:#333;">
+                    <a href="{{ route('perfil.show', $post->user->id) }}" class="text-decoration-none text-dark">
+                        <strong>{{ $post->user->nome }}</strong>
+                    </a>
                     {{ $post->corpo }}
                 </p>
+
+                <!-- CURTIDAS (AGORA DEPOIS DA DESCRIÇÃO) -->
+                <button onclick="likeAjax({{ $post->id }}, this)"
+                    class="btn border-0 p-0 mb-2 text-danger">
+                    ❤️ <span class="like-count">{{ $post->likes->count() }}</span> curtidas
+                </button>
 
                 <!-- COMENTÁRIOS -->
                 <div class="mt-3">
@@ -72,8 +94,8 @@
                                 width="30" height="30">
 
                             <div>
-                                <strong>{{ $comment->user->nome }}</strong>
-                                <p class="mb-0">{{ $comment->texto }}</p>
+                                <strong style="color:#222;">{{ $comment->user->nome }}</strong>
+                                <p class="mb-0" style="color:#555;">{{ $comment->texto }}</p>
                             </div>
 
                         </div>
