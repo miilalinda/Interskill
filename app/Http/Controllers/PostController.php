@@ -92,4 +92,9 @@ class PostController extends Controller
 
         return view('posts.feed', compact('posts'));
     }
+
+    public function show($post)
+    {
+        return "Página do post " . $post;
+    }
 }

@@ -10,14 +10,42 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        /* 🔥 BACKGROUND IGUAL LOGIN */
+        /* 🔥 BACKGROUND */
         body {
             background: linear-gradient(135deg, #0f172a, #1e293b, #4c1d95);
             min-height: 100vh;
-            color: #fff;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 0.3px;
         }
 
-        /* SIDEBAR */
+        /* 🔤 TEXTOS */
+        h1, h2, h3, h4, h5, strong {
+            color: #ffffff;
+        }
+
+        p {
+            color: #e5e7eb;
+        }
+
+        .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        a {
+            color: #818cf8;
+        }
+
+        a:hover {
+            color: #c7d2fe;
+        }
+
+        /* 📌 NAVBAR */
+        .navbar {
+            background: transparent;
+        }
+
+        /* 📂 SIDEBAR */
         .sidebar {
             min-height: 100vh;
             background: rgba(15, 23, 42, 0.8);
@@ -31,20 +59,21 @@
             text-decoration: none;
             color: #cbd5f5;
             font-weight: 500;
+            transition: 0.2s;
         }
 
         .sidebar a:hover {
             background: rgba(255,255,255,0.05);
             border-radius: 5px;
-            color: #fff;
+            color: #ffffff;
         }
 
-        /* CONTEÚDO */
+        /* 📄 CONTEÚDO */
         .content-area {
             padding: 30px;
         }
 
-        /* CARDS */
+        /* 🧊 CARDS */
         .card {
             max-width: 500px;
             margin: 0 auto;
@@ -52,25 +81,25 @@
             border: 1px solid rgba(255,255,255,0.08);
             backdrop-filter: blur(12px);
             border-radius: 15px;
-            color: #fff;
+            color: #ffffff;
         }
 
         .card-body {
             padding: 15px;
         }
 
-        /* INPUTS */
+        /* ✏️ INPUTS */
         .form-control {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
+            color: #e2e8f0;
         }
 
         .form-control::placeholder {
             color: #94a3b8;
         }
 
-        /* BOTÃO IGUAL LOGIN */
+        /* 🔘 BOTÃO PRINCIPAL */
         .btn-primary {
             background: linear-gradient(90deg, #6366f1, #8b5cf6);
             border: none;
@@ -80,12 +109,7 @@
             opacity: 0.9;
         }
 
-        /* TEXTO MUTED */
-        .text-muted {
-            color: #94a3b8 !important;
-        }
-
-        /* IMAGEM POST */
+        /* 🖼️ IMAGEM POST */
         .media-post {
             width: 100%;
             aspect-ratio: 1 / 1;
@@ -94,7 +118,7 @@
             border-radius: 10px;
         }
 
-        /* BADGE NOTIF */
+        /* 🔔 BADGE */
         .badge {
             font-size: 12px;
         }
@@ -103,8 +127,8 @@
 
 <body>
 
-    <!-- NAVBAR (AGORA TRANSPARENTE) -->
-    <nav class="navbar navbar-expand-lg" style="background: transparent;">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold text-white" href="#">INTERSKILL</a>
 

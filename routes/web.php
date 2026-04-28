@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
     Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
     Route::post('/posts/{post}/comment', [PostController::class, 'comment'])->name('posts.comment');
-
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
     // EXPLORAR PERFIS
     Route::get('/explorar', [UserController::class, 'explore'])->name('users.explore');
 
@@ -64,7 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/chat/{user}', [MessageController::class, 'send'])->name('chat.send');
     Route::get('/chat/{user}/messages', [MessageController::class, 'getMessages']);
     Route::get('/inbox', [MessageController::class, 'inbox'])->name('chat.inbox');
-    
+
 
     // apagar foto
     Route::delete('/user/{user}/foto', [UserController::class, 'deleteFoto'])
