@@ -50,7 +50,7 @@ body {
 .blob-2 {
     width: 350px;
     height: 350px;
-    background: #ec4899;
+    background: #ec3b94;
     bottom: -10%;
     right: -5%;
     animation-delay: -5s;
@@ -68,7 +68,7 @@ body {
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
-    padding: 40px;
+    padding: 30px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     width: 100%;
     max-width: 440px;
@@ -80,7 +80,7 @@ h1 {
     font-size: 2rem;
     font-weight: 700;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     background: linear-gradient(to right, #fff, #c7d2fe);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -95,13 +95,13 @@ p.subtitle {
 
 /* Forms */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     position: relative;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-muted);
@@ -111,10 +111,10 @@ p.subtitle {
     width: 100%;
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 14px 16px;
+    border-radius: 10px;
+    padding: 10px 12px;
     color: #fff;
-    font-size: 1rem;
+    font-size: 0.9rem;
     outline: none;
     transition: all 0.3s ease;
 }

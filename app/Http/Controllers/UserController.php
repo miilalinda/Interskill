@@ -11,40 +11,46 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    // Lista todos os usuários (página administrativa)
+    // Lista todos os usuários
     public function index()
     {
-        $users = User::all(); // Pega todos os usuários cadastrados
+        $users = User::all();
         return view('users.index', compact('users'));
     }
 
-    // Mostra o perfil de um usuário específico
+    // Perfil do usuário
     public function show(User $user)
-{
-    $user->loadCount(['posts', 'followers', 'following']);
+    {
+        $user->loadCount(['posts', 'followers', 'following']);
 
-    $posts = $user->posts()
-        ->with(['medias', 'likes', 'comments', 'user'])
-        ->latest()
-        ->get();
+        $posts = $user->posts()
+            ->with(['medias', 'likes', 'comments', 'user'])
+            ->latest()
+            ->get();
 
-    return view('users.show', compact('user', 'posts'));
-}
+        return view('users.show', compact('user', 'posts'));
+    }
 
-    // Página de cadastro de usuário
+    // Formulário de criação
     public function create()
     {
         return view('users.create');
     }
 
-    // Salva um novo usuário no banco de dados
+    // SALVAR USUÁRIO
     public function store(Request $request)
     {
+        // 🔥 limpar CPF (remove tudo que não for número)
+        $cpf = preg_replace('/\D/', '', $request->cpf);
+
+        // 🔥 garante no máximo 11 dígitos
+        $cpf = substr($cpf, 0, );
+
         $request->validate([
             'nome' => 'required',
             'user_nome' => 'required|unique:users',
             'email' => 'required|email|unique:users',
-            'cpf' => 'required|unique:users',
+            'cpf' => 'required|digits:11|unique:users,cpf',
             'password' => 'required|min:6',
             'foto_perfil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
@@ -59,7 +65,7 @@ class UserController extends Controller
             'nome' => $request->nome,
             'user_nome' => $request->user_nome,
             'email' => $request->email,
-            'cpf' => $request->cpf,
+            'cpf' => $cpf,
             'password' => Hash::make($request->password),
             'foto_perfil' => $caminho
         ]);
@@ -69,62 +75,52 @@ class UserController extends Controller
         return redirect()->route('users.show', $user->id);
     }
 
-    // Página para editar usuário
+    // Editar usuário
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
 
-    // Atualiza os dados de um usuário
-   public function update(Request $request, User $user)
-{
-    // ✅ VALIDAÇÃO
-    $request->validate([
-        'nome' => 'required',
-        'user_nome' => 'required|unique:users,user_nome,' . $user->id,
-        'foto_perfil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        'senha_atual' => 'required',
-        'password' => 'nullable|min:6|confirmed'
-    ]);
+    // ATUALIZAR USUÁRIO
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'nome' => 'required',
+            'user_nome' => 'required|unique:users,user_nome,' . $user->id,
+            'foto_perfil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'senha_atual' => 'required',
+            'password' => 'nullable|min:6|confirmed'
+        ]);
 
-    // 🔒 CONFIRMAR SENHA ATUAL
-    if (!Hash::check($request->senha_atual, $user->password)) {
-        return back()->withErrors(['senha_atual' => 'Senha atual incorreta']);
+        if (!Hash::check($request->senha_atual, $user->password)) {
+            return back()->withErrors(['senha_atual' => 'Senha atual incorreta']);
+        }
+
+        $user->nome = $request->nome;
+        $user->user_nome = $request->user_nome;
+
+        if ($request->hasFile('foto_perfil')) {
+            $caminho = $request->file('foto_perfil')->store('usuarios', 'public');
+            $user->foto_perfil = $caminho;
+        }
+
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('users.show', $user->id)
+            ->with('success', 'Perfil atualizado com sucesso!');
     }
 
-    // ✅ ATUALIZA DADOS PERMITIDOS
-    $user->nome = $request->nome;
-    $user->user_nome = $request->user_nome;
-
-    // 🚫 NÃO ALTERA MAIS
-    // $user->email = ...
-    // $user->cpf = ...
-
-    // 📸 FOTO
-    if ($request->hasFile('foto_perfil')) {
-        $caminho = $request->file('foto_perfil')->store('usuarios', 'public');
-        $user->foto_perfil = $caminho;
-    }
-
-    // 🔑 SENHA NOVA (opcional)
-    if ($request->password) {
-        $user->password = Hash::make($request->password);
-    }
-
-    $user->save();
-
-    return redirect()->route('users.show', $user->id)
-        ->with('success', 'Perfil atualizado com sucesso!');
-}
-
-    // Deleta um usuário
+    // DELETAR USUÁRIO
     public function destroy(User $user)
     {
         $user->delete();
         return redirect()->route('users.index');
     }
 
-    // Nova função: Explorar perfis
     // EXPLORAR
     public function explore()
     {
@@ -150,7 +146,7 @@ class UserController extends Controller
         return back();
     }
 
-    // ENVIAR SOLICITAÇÃO
+    // SOLICITAR PARCERIA
     public function solicitarParceria(User $user)
     {
         Parceria::firstOrCreate(
@@ -166,7 +162,7 @@ class UserController extends Controller
         return back();
     }
 
-    // ACEITAR
+    // ACEITAR PARCERIA
     public function aceitarParceria($id)
     {
         $parceria = Parceria::findOrFail($id);
@@ -175,7 +171,7 @@ class UserController extends Controller
         return back();
     }
 
-    // RECUSAR
+    // RECUSAR PARCERIA
     public function recusarParceria($id)
     {
         $parceria = Parceria::findOrFail($id);
@@ -184,9 +180,10 @@ class UserController extends Controller
         return back();
     }
 
+    // LISTAR PARCERIAS
     public function parcerias()
     {
-        $parcerias = \App\Models\Parceria::with('solicitante')
+        $parcerias = Parceria::with('solicitante')
             ->where('user_id', auth()->id())
             ->where('status', 'pendente')
             ->get();
@@ -194,19 +191,17 @@ class UserController extends Controller
         return view('users.parcerias', compact('parcerias'));
     }
 
+    // REMOVER FOTO
     public function deleteFoto(User $user)
     {
-        // segurança
         if (auth()->id() !== $user->id) {
             abort(403);
         }
 
-        // apagar arquivo do storage
         if ($user->foto_perfil) {
             Storage::disk('public')->delete($user->foto_perfil);
         }
 
-        // limpar no banco
         $user->foto_perfil = null;
         $user->save();
 

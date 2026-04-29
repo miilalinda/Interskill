@@ -24,7 +24,7 @@
                 <input type="password" name="password" id="password" class="form-input" required>
             </div>
 
-            <button type="submit" class="btn-primary">Entrar na Plataforma</button>
+            <button type="submit" class="btn-primary">Entrar</button>
 
             <div class="links-container">
                 <a href="#">Esqueceu a senha?</a>
@@ -32,5 +32,4 @@
             </div>
         </form>
     </div>
-
 @endsection
