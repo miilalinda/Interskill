@@ -15,7 +15,8 @@ class User extends Authenticatable
         'email',
         'cpf',
         'password',
-        'foto_perfil'
+        'foto_perfil',
+        'bio'
     ];
 
     protected $hidden = [
@@ -57,7 +58,7 @@ class User extends Authenticatable
     public function skills()
     {
         return $this->belongsToMany(\App\Models\Skill::class)
-                    ->withPivot('level')
-                    ->withTimestamps();
+            ->withPivot('nivel')
+            ->withTimestamps();
     }
 }

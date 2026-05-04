@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    // Lista todos os usuários
+    // LISTAR USUÁRIOS
     public function index()
     {
         $users = User::all();
         return view('users.index', compact('users'));
     }
 
-    // Perfil do usuário
+    // PERFIL
     public function show(User $user)
     {
         $user->loadCount(['posts', 'followers', 'following']);
@@ -31,21 +31,25 @@ class UserController extends Controller
         return view('users.show', compact('user', 'posts'));
     }
 
-    // Formulário de criação
+    // FORM CADASTRO
     public function create()
     {
         return view('users.create');
     }
 
-    // SALVAR USUÁRIO
+    // CADASTRO + REDIRECT ONBOARDING
     public function store(Request $request)
     {
-        // 🔥 limpar CPF (remove tudo que não for número)
+        // 🔥 LIMPA CPF (remove máscara)
         $cpf = preg_replace('/\D/', '', $request->cpf);
+        $cpf = substr($cpf, 0, 11);
 
-        // 🔥 garante no máximo 11 dígitos
-        $cpf = substr($cpf, 0, );
+        // 🔥 SUBSTITUI NO REQUEST (ESSENCIAL)
+        $request->merge([
+            'cpf' => $cpf
+        ]);
 
+        // ✅ VALIDAÇÃO
         $request->validate([
             'nome' => 'required',
             'user_nome' => 'required|unique:users',
@@ -65,23 +69,47 @@ class UserController extends Controller
             'nome' => $request->nome,
             'user_nome' => $request->user_nome,
             'email' => $request->email,
-            'cpf' => $cpf,
+            'cpf' => $cpf, // salva limpo
             'password' => Hash::make($request->password),
             'foto_perfil' => $caminho
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('users.show', $user->id);
+        return redirect()->route('onboarding');
     }
 
-    // Editar usuário
+    // TELA ONBOARDING
+    public function onboarding()
+    {
+        return view('users.onboarding');
+    }
+
+    public function saveOnboarding(Request $request)
+    {
+        $user = auth()->user();
+
+        $user->bio = $request->bio;
+        $user->save();
+
+        if ($request->skills) {
+            foreach ($request->skills as $skillId => $nivel) {
+                $user->skills()->syncWithoutDetaching([
+                    $skillId => ['nivel' => $nivel]
+                ]);
+            }
+        }
+
+        return redirect()->route('home');
+    }
+
+    // EDITAR PERFIL
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
 
-    // ATUALIZAR USUÁRIO
+    // ATUALIZAR PERFIL
     public function update(Request $request, User $user)
     {
         $request->validate([

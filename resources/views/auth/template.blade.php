@@ -110,7 +110,7 @@ p.subtitle {
 
 /* Forms */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 2px;
     position: relative;
 }
 
@@ -304,7 +304,7 @@ p.subtitle {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #a855f7, #3b82f6);
+    background: linear-gradient(135deg, #a855f7, #3883fc);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -331,7 +331,7 @@ p.subtitle {
 .skill-tag {
     display: inline-block;
     padding: 6px 12px;
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(92, 94, 252, 0.2);
     color: #c7d2fe;
     border-radius: 20px;
     font-size: 0.8rem;
