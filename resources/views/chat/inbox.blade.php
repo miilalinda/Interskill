@@ -13,11 +13,11 @@
             <!-- FOTO -->
             @if ($user->foto_perfil)
                 <img src="{{ asset('storage/' . $user->foto_perfil) }}"
-                     class="rounded-circle me-3"
-                     width="50" height="50" style="object-fit: cover;">
+                    class="rounded-circle me-3"
+                    width="50" height="50" style="object-fit: cover;">
             @else
                 <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
-                     style="width:50px;height:50px;">
+                    style="width:50px;height:50px;">
                     {{ strtoupper(substr($user->nome, 0, 1)) }}
                 </div>
             @endif

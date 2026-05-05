@@ -16,16 +16,11 @@
             min-height: 100vh;
             color: #e2e8f0;
             font-family: 'Segoe UI', sans-serif;
-            letter-spacing: 0.3px;
         }
 
         /* 🔤 TEXTOS */
         h1, h2, h3, h4, h5, strong {
             color: #ffffff;
-        }
-
-        p {
-            color: #e5e7eb;
         }
 
         .text-muted {
@@ -48,23 +43,24 @@
         /* 📂 SIDEBAR */
         .sidebar {
             min-height: 100vh;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.08);
         }
 
         .sidebar a {
             display: block;
-            padding: 12px 20px;
+            padding: 12px 18px;
             text-decoration: none;
             color: #cbd5f5;
             font-weight: 500;
+            border-radius: 8px;
+            margin: 5px 10px;
             transition: 0.2s;
         }
 
         .sidebar a:hover {
-            background: rgba(255,255,255,0.05);
-            border-radius: 5px;
+            background: rgba(255,255,255,0.08);
             color: #ffffff;
         }
 
@@ -73,19 +69,13 @@
             padding: 30px;
         }
 
-        /* 🧊 CARDS */
+        /* 🧊 CARDS (SEM LIMITAÇÃO DE LARGURA 🔥) */
         .card {
-            max-width: 500px;
-            margin: 0 auto;
             background: rgba(15, 23, 42, 0.7);
             border: 1px solid rgba(255,255,255,0.08);
             backdrop-filter: blur(12px);
             border-radius: 15px;
             color: #ffffff;
-        }
-
-        .card-body {
-            padding: 15px;
         }
 
         /* ✏️ INPUTS */
@@ -99,7 +89,7 @@
             color: #94a3b8;
         }
 
-        /* 🔘 BOTÃO PRINCIPAL */
+        /* 🔘 BOTÃO */
         .btn-primary {
             background: linear-gradient(90deg, #6366f1, #8b5cf6);
             border: none;
@@ -114,13 +104,23 @@
             width: 100%;
             aspect-ratio: 1 / 1;
             object-fit: cover;
-            display: block;
             border-radius: 10px;
         }
 
         /* 🔔 BADGE */
         .badge {
             font-size: 12px;
+        }
+
+        /* 📱 RESPONSIVO */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -136,18 +136,11 @@
                 @auth
                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
-                        <button class="btn btn-light btn-sm">
-                            Sair
-                        </button>
+                        <button class="btn btn-light btn-sm">Sair</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-light btn-sm">
-                        Login
-                    </a>
-
-                    <a href="{{ route('users.create') }}" class="btn btn-light btn-sm">
-                        Cadastre-se
-                    </a>
+                    <a href="{{ route('login') }}" class="btn btn-light btn-sm">Login</a>
+                    <a href="{{ route('users.create') }}" class="btn btn-light btn-sm">Cadastrar</a>
                 @endauth
             </div>
         </div>
@@ -158,18 +151,16 @@
 
             <!-- SIDEBAR -->
             @auth
-                <div class="col-md-3 col-lg-2 d-md-block sidebar collapse show">
+                <aside class="col-md-3 col-lg-2 sidebar d-none d-md-block">
                     <div class="pt-3">
 
                         <a href="{{ route('home') }}">🏠 Home</a>
-                        <a href="{{ route('users.show', auth()->user()->id) }}">👤 Perfil</a>
+                        <a href="{{ route('users.show', auth()->id()) }}">👤 Perfil</a>
                         <a href="{{ route('users.explore') }}">🔎 Explorar</a>
                         <a href="{{ route('chat.inbox') }}">📩 Mensagens</a>
 
-                        <!-- 🔔 NOTIFICAÇÃO -->
                         <a href="{{ route('parcerias') }}" class="d-flex justify-content-between align-items-center">
                             🔔 Solicitações
-
                             <span id="notif" class="badge bg-danger">
                                 {{ \App\Models\Parceria::where('user_id', auth()->id())
                                     ->where('status', 'pendente')
@@ -180,11 +171,11 @@
                         <a href="#">⚙️ Configurações</a>
 
                     </div>
-                </div>
+                </aside>
             @endauth
 
             <!-- CONTEÚDO -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 content-area">
+            <main class="col-12 col-md-9 col-lg-10 content-area">
                 @yield('content')
             </main>
 
@@ -194,22 +185,18 @@
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- 🔔 ATUALIZA NOTIFICAÇÃO -->
+    <!-- 🔔 NOTIFICAÇÃO -->
     <script>
         setInterval(() => {
             fetch('/notificacoes')
                 .then(res => res.json())
                 .then(data => {
-
                     const el = document.getElementById('notif');
-
-                    if (el) {
-                        el.innerText = data.count;
-                    }
-
+                    if (el) el.innerText = data.count;
                 });
         }, 5000);
     </script>
 
 </body>
+
 </html>
