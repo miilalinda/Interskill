@@ -2,121 +2,146 @@
 
 @section('content')
 
-<h2 class="mb-4">🔎 Explorar Perfis</h2>
+<div class="container">
 
-<div class="row">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Explorar</h3>
+    </div>
 
-    @forelse ($users as $user)
-        @php
-            $seguindo = auth()->user()->following->contains($user->id);
-        @endphp
+    <!-- 🔎 BUSCA MODERNA -->
+    <form method="GET" action="{{ route('users.explore') }}" class="mb-4">
+        <div class="position-relative">
 
-        <div class="col-md-4 mb-4">
+            <input
+                type="text"
+                name="q"
+                value="{{ request('q') }}"
+                class="form-control ps-5 py-2 rounded-pill shadow-sm"
+                placeholder="Buscar pessoas ou habilidades..."
+            >
 
-            <div class="card shadow-sm">
+            <!-- Ícone -->
+            <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                🔍
+            </span>
 
-                <div class="card-body text-center">
+        </div>
+    </form>
 
-                    <!-- FOTO PERFIL -->
-                    @if ($user->foto_perfil)
-                        <img src="{{ asset('storage/' . $user->foto_perfil) }}"
-                             class="rounded-circle mb-3"
-                             width="80" height="80"
-                             style="object-fit: cover;">
-                    @else
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3"
-                             style="width:80px;height:80px;">
-                            {{ strtoupper(substr($user->nome, 0, 1)) }}
-                        </div>
-                    @endif
+    <!-- GRID -->
+    <div class="row g-4">
 
-                    <!-- NOME -->
-                    <h5>{{ $user->nome }}</h5>
-                    <small class="text-muted">{{ '@' . $user->user_nome }}</small>
+        @forelse ($users as $user)
 
-                    <!-- CONTADORES -->
-                    <div class="d-flex justify-content-around mt-3">
-                        <div>
-                            <strong>{{ $user->posts_count }}</strong><br>
-                            <small>Posts</small>
-                        </div>
-                        <div>
-                            <strong>{{ $user->followers_count }}</strong><br>
-                            <small>Seguidores</small>
-                        </div>
-                        <div>
-                            <strong>{{ $user->following_count }}</strong><br>
-                            <small>Seguindo</small>
-                        </div>
-                    </div>
+            @php
+                $seguindo = auth()->user()->following->contains($user->id);
+            @endphp
 
-                    <!-- 🔥 PRÉVIA DOS POSTS -->
-                    @if($user->posts->count() > 0)
-                        <div class="mt-3">
-                            <div class="row g-1">
-                                @foreach($user->posts as $post)
-                                    <div class="col-4">
-                                        <img src="{{ asset('storage/' . $post->imagem) }}"
-                                             class="img-fluid rounded"
-                                             style="height:80px; object-fit:cover; width:100%;">
-                                    </div>
-                                @endforeach
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100 hover-shadow">
+
+                    <div class="card-body text-center">
+
+                        <!-- FOTO -->
+                        @if ($user->foto_perfil)
+                            <img src="{{ asset('storage/' . $user->foto_perfil) }}"
+                                class="rounded-circle mb-3"
+                                width="90" height="90"
+                                style="object-fit: cover;">
+                        @else
+                            <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-3"
+                                style="width:90px;height:90px;font-size:28px;">
+                                {{ strtoupper(substr($user->nome, 0, 1)) }}
                             </div>
-                        </div>
-                    @else
-                        <small class="text-muted d-block mt-2">
-                            Sem publicações ainda
-                        </small>
-                    @endif
-
-                    <!-- BOTÕES -->
-                    <div class="mt-3 d-grid gap-2">
-
-                        @if (auth()->id() != $user->id)
-
-                            @if ($seguindo)
-                                <form method="POST" action="{{ route('unfollow', $user->id) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-secondary btn-sm">Seguindo</button>
-                                </form>
-                            @else
-                                <form method="POST" action="{{ route('follow', $user->id) }}">
-                                    @csrf
-                                    <button class="btn btn-primary btn-sm">Seguir</button>
-                                </form>
-                            @endif
-
-                            @php
-                                $jaSolicitou = \App\Models\Parceria::where('user_id', $user->id)
-                                    ->where('solicitante_id', auth()->id())
-                                    ->exists();
-                            @endphp
-
-                            @if ($jaSolicitou)
-                                <button class="btn btn-secondary btn-sm" disabled>
-                                    ✔️ Solicitação enviada
-                                </button>
-                            @else
-                                <form method="POST" action="{{ route('parceria.solicitar', $user->id) }}">
-                                    @csrf
-                                    <button class="btn btn-outline-primary btn-sm">
-                                        Solicitar Parceria
-                                    </button>
-                                </form>
-                            @endif
-
-                            <a href="{{ route('chat', $user->id) }}"
-                               class="btn btn-outline-secondary btn-sm">
-                                Enviar Mensagem
-                            </a>
-
                         @endif
 
-                        <a href="{{ route('users.show', $user->id) }}"
-                           class="btn btn-dark btn-sm">
-                            Ver Perfil
-                        </a>
+                        <!-- NOME -->
+                        <h5 class="fw-semibold mb-0">{{ $user->nome }}</h5>
+                        <small class="text-muted d-block mb-2">{{ '@' . $user->user_nome }}</small>
+
+                        <!-- HABILIDADES -->
+                        @if($user->skills->count())
+                            <div class="mb-3">
+                                @foreach($user->skills->take(3) as $skill)
+                                    <span class="badge bg-light text-dark border">
+                                        {{ $skill->name }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <!-- STATS -->
+                        <div class="d-flex justify-content-around border-top border-bottom py-2 mb-3">
+                            <div>
+                                <strong>{{ $user->posts_count }}</strong><br>
+                                <small class="text-muted">Posts</small>
+                            </div>
+                            <div>
+                                <strong>{{ $user->followers_count }}</strong><br>
+                                <small class="text-muted">Seguidores</small>
+                            </div>
+                            <div>
+                                <strong>{{ $user->following_count }}</strong><br>
+                                <small class="text-muted">Seguindo</small>
+                            </div>
+                        </div>
+
+                        <!-- BOTÕES -->
+                        <div class="d-grid gap-2">
+
+                            @if (auth()->id() != $user->id)
+
+                                @if ($seguindo)
+                                    <form method="POST" action="{{ route('unfollow', $user->id) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-outline-secondary btn-sm rounded-pill">
+                                            Seguindo
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('follow', $user->id) }}">
+                                        @csrf
+                                        <button class="btn btn-primary btn-sm rounded-pill">
+                                            Seguir
+                                        </button>
+                                    </form>
+                                @endif
+
+                                @php
+                                    $jaSolicitou = \App\Models\Parceria::where('user_id', $user->id)
+                                        ->where('solicitante_id', auth()->id())
+                                        ->exists();
+                                @endphp
+
+                                @if ($jaSolicitou)
+                                    <button class="btn btn-light btn-sm rounded-pill" disabled>
+                                        ✔️ Enviado
+                                    </button>
+                                @else
+                                    <form method="POST" action="{{ route('parceria.solicitar', $user->id) }}">
+                                        @csrf
+                                        <button class="btn btn-outline-primary btn-sm rounded-pill">
+                                            Parceria
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route('chat', $user->id) }}"
+                                   class="btn btn-light btn-sm rounded-pill">
+                                    Mensagem
+                                </a>
+
+                            @endif
+
+                            <a href="{{ route('users.show', $user->id) }}"
+                               class="btn btn-dark btn-sm rounded-pill">
+                                Ver perfil
+                            </a>
+
+                        </div>
 
                     </div>
 
@@ -124,16 +149,22 @@
 
             </div>
 
-        </div>
+        @empty
 
-    @empty
-        <p>Nenhum usuário encontrado.</p>
-    @endforelse
+            <div class="text-center mt-5">
+                <h5 class="text-muted">Nenhum resultado encontrado</h5>
+                <p class="text-muted">Tente buscar por outra habilidade ou nome</p>
+            </div>
 
-</div>
+        @endforelse
 
-<div class="mt-4">
-    {{ $users->links() }}
+    </div>
+
+    <!-- PAGINAÇÃO -->
+    <div class="mt-5 d-flex justify-content-center">
+        {{ $users->appends(['q' => request('q')])->links() }}
+    </div>
+
 </div>
 
 @endsection

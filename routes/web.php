@@ -1,17 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\MidiaController;
 use App\Http\Controllers\MessageController;
-use App\Models\Skill;
 use App\Http\Controllers\SkillController;
-use Illuminate\Http\Request;
+use App\Models\Skill;
 
 //
-// 🔎 ROTA DE SKILLS (AUTOCOMPLETE) — FORA DO AUTH
+// 🔎 SKILLS (AUTOCOMPLETE)
 //
 Route::get('/skills', function (Request $request) {
     if (!$request->search) {
@@ -52,7 +53,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 //
 Route::middleware('auth')->group(function () {
 
-    // 🏠 HOME (FEED)
+    // 🏠 HOME
     Route::get('/', [PostController::class, 'feed'])->name('home');
 
     // 🔥 ONBOARDING
@@ -67,7 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
     // 🔎 EXPLORAR
-    Route::get('/explorar', [UserController::class, 'explore'])->name('users.explore');
+    Route::get('/explorar', [UserController::class, 'explorar'])->name('users.explore');
 
     // 👥 SEGUIR
     Route::post('/seguir/{user}', [UserController::class, 'follow'])->name('follow');
@@ -88,17 +89,17 @@ Route::middleware('auth')->group(function () {
     // 🖼️ FOTO PERFIL
     Route::delete('/user/{user}/foto', [UserController::class, 'deleteFoto'])->name('user.deleteFoto');
 
-    // 📰 FEED (extra)
+    // 📰 FEED
     Route::get('/feed', [PostController::class, 'feed'])->name('feed');
 
-    // 🔔 NOTIFICAÇÕES
+    // 🔔 NOTIFICAÇÕES (CORRIGIDO)
     Route::get('/notificacoes', function () {
         return response()->json([
             'count' => \App\Models\Parceria::where('user_id', auth()->id())
                 ->where('status', 'pendente')
                 ->count()
         ]);
-    });
-    Route::post('/skills', [SkillController::class, 'store']);
+    })->name('notificacoes');
 
+    Route::post('/skills', [SkillController::class, 'store']);
 });

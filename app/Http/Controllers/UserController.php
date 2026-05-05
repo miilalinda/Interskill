@@ -152,11 +152,21 @@ class UserController extends Controller
     }
 
     // EXPLORAR
-    public function explore()
+    public function explorar(Request $request)
     {
-        $users = User::where('id', '!=', auth()->id())
+        $q = $request->get('q');
+
+        $users = User::with(['skills', 'posts'])
             ->withCount(['posts', 'followers', 'following'])
-            ->latest()
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($subQuery) use ($q) {
+                    $subQuery->where('nome', 'LIKE', "%{$q}%")
+                        ->orWhere('user_nome', 'LIKE', "%{$q}%")
+                        ->orWhereHas('skills', function ($skillQuery) use ($q) {
+                            $skillQuery->where('name', 'LIKE', "%{$q}%");
+                        });
+                });
+            })
             ->paginate(9);
 
         return view('users.explore', compact('users'));
