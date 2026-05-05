@@ -122,6 +122,33 @@
                 padding: 15px;
             }
         }
+
+        /* PAGINAÇÃO */
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .page-link {
+            background: rgba(15, 23, 42, 0.8) !important;
+            color: #c7d2fe !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+        }
+
+        .page-link:hover {
+            background: rgba(99, 102, 241, 0.4) !important;
+            color: #fff !important;
+        }
+
+        .page-item.active .page-link {
+            background: #6366f1 !important;
+            border-color: #6366f1 !important;
+            color: #fff !important;
+        }
+
+        .page-item.disabled .page-link {
+            background: rgba(15, 23, 42, 0.4) !important;
+            color: #64748b !important;
+        }
     </style>
 </head>
 
