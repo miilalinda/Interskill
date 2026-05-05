@@ -4,254 +4,351 @@
 
 @section('content')
 
-    <div class="container">
+<div class="container profile-page">
 
-        ```
-        <!-- PERFIL -->
-        <div class="card shadow-sm mb-4 border-0">
-            <div class="card-body">
-                <div class="row align-items-center">
+    <div class="profile-card">
 
-                    <div class="col-md-3 text-center">
-                        <img src="{{ $user->foto_perfil
-                            ? asset('storage/' . $user->foto_perfil)
-                            : 'https://ui-avatars.com/api/?name=' . urlencode($user->nome) }}"
-                            class="profile-img" width="100" height="100">
-                    </div>
+        <img src="{{ $user->foto_perfil
+            ? asset('storage/' . $user->foto_perfil)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($user->nome) }}"
+            class="profile-img">
 
-                    <div class="col-md-6">
-                        <h3 class="fw-bold text-white mb-0">{{ $user->nome }}</h3>
-                        <small class="text-muted">{{ '@' . $user->user_nome }}</small>
-                        @if ($user->biografia)
-                            <div
-                                style="
-        background: rgba(255,255,255,0.05);
-        padding: 12px;
-        border-radius: 10px;
-        margin-top: 10px;
-    ">
-                                {{ $user->biografia }}
-                            </div>
-                        @endif
+        <div class="profile-content">
 
-                        <div class="d-flex gap-4 mt-3">
-                            <div>
-                                <h5 class="text-white mb-0">{{ $user->posts_count }}</h5>
-                                <small class="text-muted">Posts</small>
-                            </div>
-                            <div>
-                                <h5 class="text-white mb-0">{{ $user->followers_count }}</h5>
-                                <small class="text-muted">Seguidores</small>
-                            </div>
-                            <div>
-                                <h5 class="text-white mb-0">{{ $user->following_count }}</h5>
-                                <small class="text-muted">Seguindo</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3 text-end">
-                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-gradient px-4 rounded-pill">
-                            ✏️ Editar
-                        </a>
-                    </div>
-
+            <div class="profile-top">
+                <div>
+                    <h2>{{ $user->nome }}</h2>
+                    <span>{{ '@' . $user->user_nome }}</span>
                 </div>
+
+                <a href="{{ route('users.edit', $user->id) }}" class="edit-btn">
+                    Editar perfil
+                </a>
             </div>
-        </div>
 
-        <!-- POST -->
-        <div class="card p-3 mb-4 border-0">
-            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-
-                <textarea name="corpo" class="form-control mb-2" placeholder="O que você está pensando?" rows="2"></textarea>
-
-                <input type="file" name="arquivos[]" multiple class="form-control mb-2">
-
-                <button class="btn btn-gradient w-100">🚀 Publicar</button>
-            </form>
-        </div>
-
-        <h4 class="mb-3 text-white">Postagens</h4>
-
-        @foreach ($posts as $post)
-            <div class="card mb-4 border-0">
-
-                <!-- HEADER -->
-                <div class="d-flex align-items-center p-3">
-                    <img src="{{ $post->user->foto_perfil
-                        ? asset('storage/' . $post->user->foto_perfil)
-                        : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->nome) }}"
-                        class="rounded-circle me-2" width="40" height="40">
-
-                    <div>
-                        <strong class="text-white">{{ $post->user->nome }}</strong>
-                        <div class="text-muted small">
-                            {{ $post->created_at->diffForHumans() }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- IMG -->
-                @if ($post->medias->count())
-                    <div class="post-img-container">
-                        <img src="{{ asset('storage/' . $post->medias->first()->caminho) }}" class="w-100 post-img"
-                            ondblclick="likeAjax({{ $post->id }}, this)">
-                    </div>
-                @endif
-
-                <!-- CONTENT -->
-                <div class="p-3">
-
-                    <!-- ACTIONS -->
-                    <div class="d-flex gap-3 mb-2">
-                        <button onclick="likeAjax({{ $post->id }}, this)" class="btn btn-sm border-0 like-btn">
-
-                            ❤️ <span class="like-count">{{ $post->likes->count() }}</span>
-
-                        </button>
-
-                        <span class="text-muted">
-                            💬 {{ $post->comments->count() }}
-                        </span>
-                    </div>
-
-                    <!-- TEXTO BONITO -->
-                    @if ($post->corpo)
-                        <p class="post-text">
-                            <strong>{{ $post->user->nome }}</strong>
-                            {{ $post->corpo }}
-                        </p>
-                    @endif
-
-                    <!-- INPUT -->
-                    <input type="text" class="form-control comment-input" placeholder="Comente...">
-
-                </div>
-
+            <div class="profile-stats">
+                <div><strong>{{ $user->posts_count }}</strong> posts</div>
+                <div><strong>{{ $user->followers_count }}</strong> seguidores</div>
+                <div><strong>{{ $user->following_count }}</strong> seguindo</div>
             </div>
-        @endforeach
-        ```
 
+            @if ($user->bio)
+                <p class="bio">{{ $user->bio }}</p>
+            @endif
+
+            <div class="profile-skills">
+                @forelse($user->skills as $skill)
+                    <span class="skill-badge">
+                        {{ $skill->nome }}
+                        <small>{{ nivelTexto($skill->pivot->nivel) }}</small>
+                    </span>
+                @empty
+                    <p class="empty-skills">Este usuário ainda não adicionou habilidades.</p>
+                @endforelse
+            </div>
+
+        </div>
     </div>
 
-    <script>
-        function likeAjax(postId, element) {
-            fetch(`/posts/${postId}/like`, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Accept": "application/json"
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
+    <div class="post-create-card">
+        <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
 
-                    element.querySelector('.like-count').innerText = data.likes;
+            <textarea name="corpo" class="form-control post-input"
+                placeholder="O que você está pensando?" rows="2"></textarea>
 
-                    element.style.transform = "scale(1.3)";
-                    setTimeout(() => element.style.transform = "scale(1)", 200);
+            <input type="file" name="arquivos[]" multiple class="form-control file-input">
 
-                    element.style.color = data.liked ? "red" : "#cbd5f5";
+            <button class="publish-btn">🚀 Publicar</button>
+        </form>
+    </div>
 
-                    const heart = document.createElement('div');
-                    heart.innerHTML = "❤️";
-                    heart.className = "heart-animation";
+    <h4 class="section-title">Postagens</h4>
 
-                    element.closest('.post-img-container')?.appendChild(heart);
+    @foreach ($posts as $post)
+        <div class="post-card">
 
-                    setTimeout(() => heart.remove(), 800);
-                });
+            <div class="post-header">
+                <img src="{{ $post->user->foto_perfil
+                    ? asset('storage/' . $post->user->foto_perfil)
+                    : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->nome) }}">
+
+                <div>
+                    <strong>{{ $post->user->nome }}</strong>
+                    <small>{{ $post->created_at->diffForHumans() }}</small>
+                </div>
+            </div>
+
+            @if ($post->medias->count())
+                <div class="post-img-container">
+                    <img src="{{ asset('storage/' . $post->medias->first()->caminho) }}"
+                        class="post-img"
+                        ondblclick="likeAjax({{ $post->id }}, this)">
+                </div>
+            @endif
+
+            <div class="post-body">
+                <div class="post-actions">
+                    <button onclick="likeAjax({{ $post->id }}, this)" class="like-btn">
+                        ❤️ <span class="like-count">{{ $post->likes->count() }}</span>
+                    </button>
+
+                    <span>💬 {{ $post->comments->count() }}</span>
+                </div>
+
+                @if ($post->corpo)
+                    <p class="post-text">
+                        <strong>{{ $post->user->nome }}</strong>
+                        {{ $post->corpo }}
+                    </p>
+                @endif
+
+                <input type="text" class="form-control comment-input" placeholder="Comente...">
+            </div>
+        </div>
+    @endforeach
+
+</div>
+
+@php
+function nivelTexto($nivel) {
+    return match((int)$nivel) {
+        0 => 'Aprendendo',
+        1 => 'Básico',
+        2 => 'Médio',
+        3 => 'Avançado',
+        4 => 'Pro',
+        5 => 'Mestre',
+        default => 'Não informado',
+    };
+}
+@endphp
+
+<script>
+function likeAjax(postId, element) {
+    fetch(`/posts/${postId}/like`, {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json"
         }
-    </script>
+    })
+    .then(res => res.json())
+    .then(data => {
+        element.querySelector('.like-count').innerText = data.likes;
+        element.style.transform = "scale(1.2)";
+        setTimeout(() => element.style.transform = "scale(1)", 200);
+        element.style.color = data.liked ? "red" : "#cbd5f5";
+    });
+}
+</script>
 
-    <style>
-        /* CARD */
-        .card {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: 18px;
-            color: #fff;
-        }
+<style>
+.profile-page {
+    max-width: 850px;
+}
 
-        /* PERFIL IMG */
-        .profile-img {
-            border-radius: 50%;
-            padding: 3px;
-            background: linear-gradient(45deg, #6366f1, #8b5cf6);
-        }
+.profile-card {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 32px;
+    padding: 35px 10px 30px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: white;
+}
 
-        /* TEXTO */
-        .post-text {
-            color: #f1f5f9;
-            line-height: 1.7;
-            font-size: 15px;
-            margin-top: 10px;
-        }
+.profile-img {
+    width: 145px;
+    height: 145px;
+    border-radius: 50%;
+    object-fit: cover;
+    padding: 4px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
 
-        .post-text strong {
-            color: #ffffff;
-        }
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
-        /* INPUT */
-        .comment-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-radius: 20px;
-            padding: 10px;
-        }
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
 
-        /* BOTÃO */
-        .btn-gradient {
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            border: none;
-            color: white;
-        }
+.profile-top h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
 
-        /* IMG */
-        .post-img {
-            border-radius: 12px;
-            transition: 0.3s;
-        }
+.profile-top span {
+    color: #94a3b8;
+    font-size: 14px;
+}
 
-        .post-img:hover {
-            filter: brightness(0.9);
-        }
+.edit-btn {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 14px;
+    border: 1px solid rgba(255,255,255,0.12);
+}
 
-        /* LIKE */
-        .like-btn {
-            color: #cbd5f5;
-            transition: 0.2s;
-        }
+.profile-stats {
+    display: flex;
+    gap: 35px;
+    font-size: 15px;
+}
 
-        /* ❤️ ANIMAÇÃO */
-        .heart-animation {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 70px;
-            animation: pop 0.8s ease forwards;
-        }
+.profile-stats strong {
+    font-weight: 800;
+}
 
-        @keyframes pop {
-            0% {
-                opacity: 0;
-                transform: scale(0.5) translate(-50%, -50%);
-            }
+.bio {
+    margin: 0;
+    color: #e5e7eb;
+}
 
-            50% {
-                opacity: 1;
-                transform: scale(1.3) translate(-50%, -50%);
-            }
+.profile-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
 
-            100% {
-                opacity: 0;
-                transform: scale(1) translate(-50%, -50%);
-            }
-        }
-    </style>
+.skill-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 999px;
+    padding: 7px 12px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.skill-badge small {
+    color: #a5b4fc;
+    font-size: 12px;
+}
+
+.empty-skills {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.post-create-card,
+.post-card {
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(14px);
+    border-radius: 22px;
+    color: white;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.28);
+}
+
+.post-input,
+.file-input,
+.comment-input {
+    background: rgba(255,255,255,0.06);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    margin-bottom: 10px;
+}
+
+.post-input:focus,
+.comment-input:focus {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    box-shadow: none;
+}
+
+.publish-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 11px;
+}
+
+.section-title {
+    color: white;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.post-header img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+}
+
+.post-header small {
+    display: block;
+    color: #94a3b8;
+}
+
+.post-img {
+    width: 100%;
+    border-radius: 18px;
+    margin-bottom: 14px;
+}
+
+.post-actions {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #cbd5e1;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    transition: 0.2s;
+}
+
+.post-text {
+    color: #e5e7eb;
+}
+
+@media (max-width: 700px) {
+    .profile-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .profile-img {
+        margin: 0 auto;
+    }
+
+    .profile-top,
+    .profile-stats,
+    .profile-skills {
+        justify-content: center;
+    }
+
+    .profile-top {
+        flex-direction: column;
+    }
+}
+</style>
 
 @endsection

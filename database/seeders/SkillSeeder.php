@@ -310,7 +310,7 @@ class SkillSeeder extends Seeder
         foreach ($data as $category => $skillNames) {
             foreach ($skillNames as $name) {
                 $skills[] = [
-                    'name'       => $name,
+                    'nome'       => $name,
                     'category'   => $category,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -322,7 +322,7 @@ class SkillSeeder extends Seeder
         $seen   = [];
         $unique = [];
         foreach ($skills as $skill) {
-            $key = mb_strtolower(trim($skill['name']));
+            $key = mb_strtolower(trim($skill['nome']));
             if (!isset($seen[$key])) {
                 $seen[$key] = true;
                 $unique[]   = $skill;
