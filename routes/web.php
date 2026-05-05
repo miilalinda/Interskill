@@ -74,6 +74,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/seguir/{user}', [UserController::class, 'follow'])->name('follow');
     Route::delete('/deixar-seguir/{user}', [UserController::class, 'unfollow'])->name('unfollow');
 
+    Route::delete('/remover-seguidor/{user}', [UserController::class, 'removeFollower'])
+    ->name('remove.follower')
+    ->middleware('auth');
+
     // 🤝 PARCERIAS
     Route::post('/parceria/{user}', [UserController::class, 'solicitarParceria'])->name('parceria.solicitar');
     Route::post('/parceria/{id}/aceitar', [UserController::class, 'aceitarParceria'])->name('parceria.aceitar');
