@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Skill extends Model
 {
-    protected $fillable = ['nome'];
-    
+    protected $fillable = ['nome', 'category'];
     public function users()
     {
         return $this->belongsToMany(User::class)

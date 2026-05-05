@@ -7,18 +7,21 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\MidiaController;
 use App\Http\Controllers\MessageController;
 use App\Models\Skill;
+use App\Http\Controllers\SkillController;
 use Illuminate\Http\Request;
 
 //
 // 🔎 ROTA DE SKILLS (AUTOCOMPLETE) — FORA DO AUTH
 //
 Route::get('/skills', function (Request $request) {
-
     if (!$request->search) {
         return response()->json([]);
     }
 
-    return Skill::where('name', 'like', '%' . $request->search . '%')->get();
+    return Skill::where('nome', 'like', '%' . $request->search . '%')
+        ->select('id', 'nome', 'category')
+        ->limit(10)
+        ->get();
 });
 
 //
@@ -96,5 +99,6 @@ Route::middleware('auth')->group(function () {
                 ->count()
         ]);
     });
+    Route::post('/skills', [SkillController::class, 'store']);
 
 });

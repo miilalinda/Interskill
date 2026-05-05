@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Parceria;
+use App\Models\Skill; // 🔥 IMPORTANTE
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -21,7 +22,8 @@ class UserController extends Controller
     // PERFIL
     public function show(User $user)
     {
-        $user->loadCount(['posts', 'followers', 'following']);
+        $user->loadCount(['posts', 'followers', 'following'])
+     ->load('skills');
 
         $posts = $user->posts()
             ->with(['medias', 'likes', 'comments', 'user'])
@@ -40,16 +42,13 @@ class UserController extends Controller
     // CADASTRO + REDIRECT ONBOARDING
     public function store(Request $request)
     {
-        // 🔥 LIMPA CPF (remove máscara)
         $cpf = preg_replace('/\D/', '', $request->cpf);
         $cpf = substr($cpf, 0, 11);
 
-        // 🔥 SUBSTITUI NO REQUEST (ESSENCIAL)
         $request->merge([
             'cpf' => $cpf
         ]);
 
-        // ✅ VALIDAÇÃO
         $request->validate([
             'nome' => 'required',
             'user_nome' => 'required|unique:users',
@@ -69,7 +68,7 @@ class UserController extends Controller
             'nome' => $request->nome,
             'user_nome' => $request->user_nome,
             'email' => $request->email,
-            'cpf' => $cpf, // salva limpo
+            'cpf' => $cpf,
             'password' => Hash::make($request->password),
             'foto_perfil' => $caminho
         ]);
@@ -79,12 +78,15 @@ class UserController extends Controller
         return redirect()->route('onboarding');
     }
 
-    // TELA ONBOARDING
+    // 🔥 ONBOARDING (CORRIGIDO)
     public function onboarding()
     {
-        return view('users.onboarding');
+        $skills = Skill::orderBy('nome')->get();
+
+        return view('users.onboarding', compact('skills'));
     }
 
+    // SALVAR ONBOARDING
     public function saveOnboarding(Request $request)
     {
         $user = auth()->user();
@@ -174,7 +176,7 @@ class UserController extends Controller
         return back();
     }
 
-    // SOLICITAR PARCERIA
+    // PARCERIAS
     public function solicitarParceria(User $user)
     {
         Parceria::firstOrCreate(
@@ -190,25 +192,20 @@ class UserController extends Controller
         return back();
     }
 
-    // ACEITAR PARCERIA
     public function aceitarParceria($id)
     {
         $parceria = Parceria::findOrFail($id);
         $parceria->update(['status' => 'aceito']);
-
         return back();
     }
 
-    // RECUSAR PARCERIA
     public function recusarParceria($id)
     {
         $parceria = Parceria::findOrFail($id);
         $parceria->update(['status' => 'recusado']);
-
         return back();
     }
 
-    // LISTAR PARCERIAS
     public function parcerias()
     {
         $parcerias = Parceria::with('solicitante')
@@ -219,7 +216,7 @@ class UserController extends Controller
         return view('users.parcerias', compact('parcerias'));
     }
 
-    // REMOVER FOTO
+    // FOTO PERFIL
     public function deleteFoto(User $user)
     {
         if (auth()->id() !== $user->id) {
