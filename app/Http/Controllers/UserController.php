@@ -7,6 +7,7 @@ use App\Models\Parceria;
 use App\Models\Skill; // 🔥 IMPORTANTE
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,18 +22,20 @@ class UserController extends Controller
 
     // PERFIL
     public function show(User $user)
-    {
-        $user->loadCount(['posts', 'followers', 'following'])
-     ->load('skills');
+{
+    $user->load(['skills', 'followers', 'following']);
 
-        $posts = $user->posts()
-            ->with(['medias', 'likes', 'comments', 'user'])
-            ->latest()
-            ->get();
+    $posts = $user->posts()
+        ->with(['medias', 'likes', 'comments', 'user'])
+        ->latest()
+        ->get();
 
-        return view('users.show', compact('user', 'posts'));
-    }
+    $user->posts_count = $posts->count();
+    $user->followers_count = $user->followers->count();
+    $user->following_count = $user->following->count();
 
+    return view('users.show', compact('user', 'posts'));
+}
     // FORM CADASTRO
     public function create()
     {
@@ -108,12 +111,15 @@ class UserController extends Controller
     // EDITAR PERFIL
     public function edit(User $user)
     {
+        Gate::authorize('update', $user);
         return view('users.edit', compact('user'));
     }
 
     // ATUALIZAR PERFIL
     public function update(Request $request, User $user)
     {
+        Gate::authorize('update', $user);
+
         $request->validate([
             'nome' => 'required',
             'user_nome' => 'required|unique:users,user_nome,' . $user->id,
@@ -183,6 +189,13 @@ class UserController extends Controller
     public function unfollow(User $user)
     {
         auth()->user()->following()->detach($user->id);
+        return back();
+    }
+
+    public function removeFollower(User $user)
+    {
+        auth()->user()->followers()->detach($user->id);
+
         return back();
     }
 

@@ -30,17 +30,27 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Post::class);
     }
 
-    // QUEM EU SIGO
-    public function following()
-    {
-        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'user_id');
-    }
+   // QUEM ME SEGUE
+public function followers()
+{
+    return $this->belongsToMany(
+        User::class,
+        'followers',
+        'user_id',
+        'follower_id'
+    );
+}
 
-    // QUEM ME SEGUE
-    public function followers()
-    {
-        return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
-    }
+// QUEM EU SIGO
+public function following()
+{
+    return $this->belongsToMany(
+        User::class,
+        'followers',
+        'follower_id',
+        'user_id'
+    );
+}
 
     // PARCERIAS RECEBIDAS
     public function parceriasRecebidas()
