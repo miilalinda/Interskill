@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Notification;
 
 class UserController extends Controller
 {
@@ -158,32 +159,57 @@ class UserController extends Controller
     }
 
     // EXPLORAR
-    public function explorar(Request $request)
-    {
-        $q = $request->get('q');
+    public function explore(Request $request)
+{
+    $users = collect();
 
-        $users = User::with(['skills', 'posts'])
-            ->withCount(['posts', 'followers', 'following'])
-            ->when($q, function ($query) use ($q) {
-                $query->where(function ($subQuery) use ($q) {
-                    $subQuery->where('nome', 'LIKE', "%{$q}%")
-                        ->orWhere('user_nome', 'LIKE', "%{$q}%")
-                        ->orWhereHas('skills', function ($skillQuery) use ($q) {
-                            $skillQuery->where('name', 'LIKE', "%{$q}%");
-                        });
-                });
+    if ($request->filled('q')) {
+        $q = $request->q;
+
+        $users = User::where('id', '!=', auth()->id())
+            ->where(function ($query) use ($q) {
+                $query->where('nome', 'LIKE', "%{$q}%")
+                    ->orWhere('user_nome', 'LIKE', "%{$q}%")
+                    ->orWhereHas('skills', function ($skillQuery) use ($q) {
+                        $skillQuery->where('nome', 'LIKE', "%{$q}%");
+                    });
             })
+            ->with(['skills'])
+            ->withCount(['posts', 'followers', 'following'])
+            ->latest()
             ->paginate(9);
-
-        return view('users.explore', compact('users'));
     }
+
+    return view('users.explore', compact('users'));
+}
 
     // SEGUIR
     public function follow(User $user)
-    {
-        auth()->user()->following()->syncWithoutDetaching([$user->id]);
-        return back();
+{
+    auth()->user()
+        ->following()
+        ->syncWithoutDetaching([$user->id]);
+
+    // cria notificação
+    if (auth()->id() != $user->id) {
+
+        Notification::create([
+
+            'user_id' => $user->id,
+
+            'from_user_id' => auth()->id(),
+
+            'type' => 'follow',
+
+            'message' => auth()->user()->nome . ' começou a seguir você.',
+
+            'url' => route('users.show', auth()->id())
+
+        ]);
     }
+
+    return back();
+}
 
     // DEIXAR DE SEGUIR
     public function unfollow(User $user)

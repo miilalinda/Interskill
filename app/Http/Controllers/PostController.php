@@ -72,9 +72,12 @@ class PostController extends Controller
         ]);
 
         Comment::create([
-            'user_id' => auth()->id(),
+            'user_id' => $post->user_id,
+            'from_user_id' => auth()->id(),
             'post_id' => $post->id,
-            'texto' => $request->texto
+            'type' => 'like',
+            'message' => auth()->user()->nome . ' curtiu seu post.',
+            'url' => route('posts.show', $post->id),
         ]);
 
         return back();

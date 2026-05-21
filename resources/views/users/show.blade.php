@@ -21,29 +21,31 @@
 
 <div class="container profile-page">
 
-    <div class="profile-card">
+    <div class="profile-header">
 
-        <img src="{{ $user->foto_perfil
-            ? asset('storage/' . $user->foto_perfil)
-            : 'https://ui-avatars.com/api/?name=' . urlencode($user->nome) }}"
-            class="profile-img">
+        <div class="profile-avatar-area">
+            <img src="{{ $user->foto_perfil
+                ? asset('storage/' . $user->foto_perfil)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($user->nome) }}"
+                class="profile-avatar">
+        </div>
 
-        <div class="profile-content">
+        <div class="profile-info-area">
 
-            <div class="profile-top">
+            <div class="profile-top-new">
                 <div>
-                    <h2>{{ $user->nome }}</h2>
-                    <span>{{ '@' . $user->user_nome }}</span>
+                    <h2 class="profile-name">{{ $user->nome }}</h2>
+                    <span class="profile-username">{{ '@' . $user->user_nome }}</span>
                 </div>
 
                 @can('update', $user)
-                    <a href="{{ route('users.edit', $user->id) }}" class="edit-btn">
+                    <a href="{{ route('users.edit', $user->id) }}" class="btn-edit-profile">
                         Editar perfil
                     </a>
-                @endif
+                @endcan
             </div>
 
-            <div class="profile-stats">
+            <div class="profile-stats-new">
                 <div>
                     <strong>{{ $user->posts_count }}</strong>
                     <span>Posts</span>
@@ -61,7 +63,7 @@
             </div>
 
             @if ($user->bio)
-                <p class="bio">{{ $user->bio }}</p>
+                <p class="profile-bio">{{ $user->bio }}</p>
             @endif
 
             <div class="profile-skills">
@@ -78,66 +80,127 @@
         </div>
     </div>
 
-    <div class="post-create-card">
-        <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+    @can('update', $user)
+        <div class="post-create-card">
+            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
 
-            <textarea name="corpo" class="form-control post-input" placeholder="O que você está pensando?" rows="2"></textarea>
+                <textarea name="corpo" class="form-control post-input" placeholder="O que você está pensando?" rows="2"></textarea>
 
-            <input type="file" name="arquivos[]" multiple class="form-control file-input">
+                <input type="file" name="arquivos[]" multiple class="form-control file-input">
 
-            <button class="publish-btn">🚀 Publicar</button>
-        </form>
-    </div>
+                <button class="publish-btn">🚀 Publicar</button>
+            </form>
+        </div>
+    @endcan
 
     <h4 class="section-title">Postagens</h4>
 
     @foreach ($posts as $post)
-        <div class="post-card">
 
-            <div class="post-header">
-                <img src="{{ $post->user->foto_perfil
-                    ? asset('storage/' . $post->user->foto_perfil)
-                    : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->nome) }}">
+        <div class="instagram-post">
 
-                <div>
-                    <strong>{{ $post->user->nome }}</strong>
-                    <small>{{ $post->created_at->diffForHumans() }}</small>
+            <div class="instagram-header">
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <img src="{{ $post->user->foto_perfil
+                        ? asset('storage/' . $post->user->foto_perfil)
+                        : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->nome) }}"
+                        class="insta-post-avatar">
+
+                    <div>
+                        <strong class="post-username">
+                            {{ $post->user->user_nome }}
+                        </strong>
+
+                        <small class="d-block text-muted">
+                            {{ $post->created_at->diffForHumans() }}
+                        </small>
+                    </div>
+
                 </div>
+
+                <button class="post-options">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+
             </div>
 
             @if ($post->medias->count())
-                <div class="post-img-container">
+                <div class="insta-post-media">
                     <img src="{{ asset('storage/' . $post->medias->first()->caminho) }}"
-                         class="post-img"
-                         ondblclick="likeAjax({{ $post->id }}, this)">
+                        class="insta-post-image"
+                        ondblclick="likeAjax({{ $post->id }}, this)">
                 </div>
             @endif
 
-            <div class="post-body">
-                <div class="post-actions">
-                    <button onclick="likeAjax({{ $post->id }}, this)" class="like-btn">
-                        ❤️ <span class="like-count">{{ $post->likes->count() }}</span>
+            <div class="insta-post-actions">
+
+                <div class="d-flex gap-3">
+
+                    <button onclick="likeAjax({{ $post->id }}, this)" class="insta-action-btn">
+                        <i class="bi bi-heart"></i>
                     </button>
 
-                    <span>💬 {{ $post->comments->count() }}</span>
+                    <button class="insta-action-btn">
+                        <i class="bi bi-chat"></i>
+                    </button>
+
+                    <button class="insta-action-btn">
+                        <i class="bi bi-send"></i>
+                    </button>
+
                 </div>
 
-                @if ($post->corpo)
-                    <p class="post-text">
-                        <strong>{{ $post->user->nome }}</strong>
-                        {{ $post->corpo }}
-                    </p>
-                @endif
+                <button class="insta-action-btn">
+                    <i class="bi bi-bookmark"></i>
+                </button>
 
-                <input type="text" class="form-control comment-input" placeholder="Comente...">
             </div>
 
+            <div class="insta-likes">
+                <strong>
+                    <span class="like-count">{{ $post->likes->count() }}</span>
+                    curtidas
+                </strong>
+            </div>
+
+            @if ($post->corpo)
+                <div class="insta-caption">
+                    <strong>{{ $post->user->user_nome }}</strong>
+                    {{ $post->corpo }}
+                </div>
+            @endif
+
+            <div class="insta-comments">
+                @foreach($post->comments->take(2) as $comment)
+                    <div class="comment-row">
+                        <strong>{{ $comment->user->user_nome }}</strong>
+                        {{ $comment->texto }}
+                    </div>
+                @endforeach
+            </div>
+
+            <form action="{{ route('posts.comment', $post->id) }}" method="POST" class="comment-form">
+                @csrf
+
+                <input type="text"
+                    name="texto"
+                    placeholder="Adicione um comentário..."
+                    class="comment-input-insta"
+                    required>
+
+                <button class="publish-comment">
+                    Publicar
+                </button>
+            </form>
+
         </div>
+
     @endforeach
 
 </div>
-
 
 <!-- MODAL SEGUIDORES -->
 <div class="modal fade" id="followersModal" tabindex="-1">
@@ -185,7 +248,6 @@
     </div>
 </div>
 
-
 <!-- MODAL SEGUINDO -->
 <div class="modal fade" id="followingModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered insta-dialog">
@@ -232,7 +294,6 @@
     </div>
 </div>
 
-
 <script>
     function likeAjax(postId, element) {
         fetch(`/posts/${postId}/like`, {
@@ -244,7 +305,7 @@
         })
         .then(res => res.json())
         .then(data => {
-            const count = element.querySelector('.like-count');
+            const count = element.closest('.instagram-post').querySelector('.like-count');
 
             if (count) {
                 count.innerText = data.likes;
@@ -252,85 +313,83 @@
 
             element.style.transform = "scale(1.2)";
             setTimeout(() => element.style.transform = "scale(1)", 200);
-            element.style.color = data.liked ? "red" : "#cbd5f5";
         });
     }
 </script>
 
-
 <style>
 .profile-page {
-    max-width: 850px;
+    max-width: 950px;
 }
 
-.profile-card {
-    display: grid;
-    grid-template-columns: 170px 1fr;
-    gap: 32px;
-    padding: 35px 10px 30px;
+.profile-header {
+    display: flex;
+    gap: 55px;
+    align-items: center;
+    padding: 45px 0 35px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
     margin-bottom: 25px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    color: white;
 }
 
-.profile-img {
-    width: 145px;
-    height: 145px;
+.profile-avatar {
+    width: 155px;
+    height: 155px;
     border-radius: 50%;
     object-fit: cover;
     padding: 4px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
-.profile-content {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.profile-info-area {
+    flex: 1;
 }
 
-.profile-top {
+.profile-top-new {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 22px;
+    margin-bottom: 22px;
 }
 
-.profile-top h2 {
+.profile-name {
+    font-size: 30px;
+    font-weight: 700;
     margin: 0;
-    font-size: 24px;
-    font-weight: 600;
 }
 
-.profile-top span {
+.profile-username {
     color: #94a3b8;
-    font-size: 14px;
-}
-
-.edit-btn {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    padding: 8px 18px;
-    font-size: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.profile-stats {
-    display: flex;
-    gap: 35px;
     font-size: 15px;
 }
 
-.profile-stats strong {
-    font-weight: 800;
+.btn-edit-profile {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.12);
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-size: 14px;
+}
+
+.profile-stats-new {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 18px;
+}
+
+.profile-stats-new div {
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 .stat-click {
     cursor: pointer;
 }
 
-.bio {
-    margin: 0;
+.profile-bio {
+    margin: 0 0 14px;
     color: #e5e7eb;
 }
 
@@ -342,52 +401,33 @@
 
 .skill-badge {
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 999px;
     padding: 7px 12px;
     display: inline-flex;
     gap: 6px;
-    align-items: center;
     font-size: 13px;
     font-weight: 600;
 }
 
 .skill-badge small {
     color: #a5b4fc;
-    font-size: 12px;
 }
 
-.empty-skills {
-    color: #94a3b8;
-    font-size: 14px;
-}
-
-.post-create-card,
-.post-card {
+.post-create-card {
     background: rgba(15, 23, 42, 0.78);
     backdrop-filter: blur(14px);
     border-radius: 22px;
-    color: white;
     padding: 20px;
     margin-bottom: 24px;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 }
 
 .post-input,
-.file-input,
-.comment-input {
+.file-input {
     background: rgba(255, 255, 255, 0.06);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
     margin-bottom: 10px;
-}
-
-.post-input:focus,
-.comment-input:focus {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-    box-shadow: none;
 }
 
 .publish-btn {
@@ -405,50 +445,111 @@
     margin-bottom: 16px;
 }
 
-.post-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
+/* POSTS ESTILO INSTAGRAM */
+.instagram-post {
+    background: rgba(15,23,42,.82);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.28);
 }
 
-.post-header img {
-    width: 44px;
-    height: 44px;
+.instagram-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 18px;
+}
+
+.insta-post-avatar {
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
+    object-fit: cover;
 }
 
-.post-header small {
-    display: block;
-    color: #94a3b8;
-}
-
-.post-img {
-    width: 100%;
-    border-radius: 18px;
-    margin-bottom: 14px;
-}
-
-.post-actions {
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    margin-bottom: 10px;
-    color: #cbd5e1;
-}
-
-.like-btn {
+.post-options {
     background: none;
     border: none;
-    color: #cbd5e1;
-    transition: 0.2s;
+    color: white;
+    font-size: 20px;
 }
 
-.post-text {
-    color: #e5e7eb;
+.insta-post-media {
+    background: black;
 }
 
-/* MODAL ESTILO INSTAGRAM */
+.insta-post-image {
+    width: 100%;
+    max-height: 700px;
+    object-fit: cover;
+}
+
+.insta-post-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 16px 8px;
+}
+
+.insta-action-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    transition: .2s;
+}
+
+.insta-action-btn:hover {
+    transform: scale(1.1);
+    color: #a78bfa;
+}
+
+.insta-likes {
+    padding: 0 18px;
+    margin-bottom: 6px;
+}
+
+.insta-caption {
+    padding: 0 18px;
+    margin-bottom: 12px;
+    color: #f1f5f9;
+}
+
+.insta-comments {
+    padding: 0 18px;
+    margin-bottom: 14px;
+}
+
+.comment-row {
+    margin-bottom: 6px;
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+.comment-form {
+    border-top: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+}
+
+.comment-input-insta {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+}
+
+.publish-comment {
+    background: none;
+    border: none;
+    color: #8b5cf6;
+    font-weight: 700;
+}
+
+/* MODAL */
 .insta-dialog {
     max-width: 560px;
 }
@@ -458,7 +559,6 @@
     color: white;
     border-radius: 8px !important;
     border: 1px solid #303136;
-    overflow: hidden;
 }
 
 .insta-header {
@@ -468,12 +568,6 @@
     align-items: center;
     position: relative;
     border-bottom: 1px solid #36373b;
-}
-
-.insta-header h5 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
 }
 
 .insta-x {
@@ -487,7 +581,6 @@
     line-height: 26px;
     width: 38px;
     height: 38px;
-    border-radius: 4px;
 }
 
 .insta-body {
@@ -504,11 +597,6 @@
     color: white;
     padding: 9px 12px;
     margin-bottom: 12px;
-    outline: none;
-}
-
-.insta-search::placeholder {
-    color: #a8a8a8;
 }
 
 .insta-row {
@@ -526,10 +614,6 @@
     text-decoration: none;
 }
 
-.insta-left:hover {
-    color: white;
-}
-
 .insta-avatar {
     width: 48px;
     height: 48px;
@@ -540,7 +624,6 @@
 .insta-left strong {
     display: block;
     font-size: 14px;
-    color: white;
 }
 
 .insta-left span {
@@ -556,30 +639,22 @@
     border-radius: 8px;
     padding: 7px 17px;
     font-weight: 700;
-    font-size: 14px;
-}
-
-.insta-btn:hover {
-    background: #3a3b40 !important;
 }
 
 @media (max-width: 700px) {
-    .profile-card {
-        grid-template-columns: 1fr;
+    .profile-header {
+        flex-direction: column;
         text-align: center;
+        gap: 20px;
     }
 
-    .profile-img {
-        margin: 0 auto;
-    }
-
-    .profile-top,
-    .profile-stats,
+    .profile-top-new,
+    .profile-stats-new,
     .profile-skills {
         justify-content: center;
     }
 
-    .profile-top {
+    .profile-top-new {
         flex-direction: column;
     }
 }

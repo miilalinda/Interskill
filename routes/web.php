@@ -10,6 +10,7 @@ use App\Http\Controllers\MidiaController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SkillController;
 use App\Models\Skill;
+use App\Models\Notification;
 
 //
 // 🔎 SKILLS (AUTOCOMPLETE)
@@ -68,8 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
     // 🔎 EXPLORAR
-    Route::get('/explorar', [UserController::class, 'explorar'])->name('users.explore');
-
+    Route::get('/explorar', [UserController::class, 'explore'])->name('users.explore');
     // 👥 SEGUIR
     Route::post('/seguir/{user}', [UserController::class, 'follow'])->name('follow');
     Route::delete('/deixar-seguir/{user}', [UserController::class, 'unfollow'])->name('unfollow');
@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/remove-follower/{user}', [UserController::class, 'removeFollower'])
     ->name('remove.follower')
     ->middleware('auth');
-    
+
     // 🤝 PARCERIAS
     Route::post('/parceria/{user}', [UserController::class, 'solicitarParceria'])->name('parceria.solicitar');
     Route::post('/parceria/{id}/aceitar', [UserController::class, 'aceitarParceria'])->name('parceria.aceitar');
@@ -98,12 +98,28 @@ Route::middleware('auth')->group(function () {
 
     // 🔔 NOTIFICAÇÕES (CORRIGIDO)
     Route::get('/notificacoes', function () {
+
+        $count = Notification::where('user_id', auth()->id())
+            ->where('read', false)
+            ->count();
+
         return response()->json([
-            'count' => \App\Models\Parceria::where('user_id', auth()->id())
-                ->where('status', 'pendente')
-                ->count()
+            'count' => $count
         ]);
     })->name('notificacoes');
+
+    Route::post('/notifications/read', function () {
+
+        \App\Models\Notification::where('user_id', auth()->id())
+            ->update([
+                'read' => true
+            ]);
+
+        return response()->json([
+            'success' => true
+        ]);
+
+    });
 
     Route::post('/skills', [SkillController::class, 'store']);
 });
