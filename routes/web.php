@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\MidiaController;
+use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SkillController;
 use App\Models\Skill;
@@ -68,6 +69,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts/{post}/comment', [PostController::class, 'comment'])->name('posts.comment');
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
+    // DESTAQUE
+
+    Route::post('/highlights', [HighlightController::class, 'store'])->name('highlights.store');
+
     // 🔎 EXPLORAR
     Route::get('/explorar', [UserController::class, 'explore'])->name('users.explore');
     // 👥 SEGUIR
@@ -92,6 +97,10 @@ Route::middleware('auth')->group(function () {
 
     // 🖼️ FOTO PERFIL
     Route::delete('/user/{user}/foto', [UserController::class, 'deleteFoto'])->name('user.deleteFoto');
+
+    // ⭐ REMOVER DESTAQUE
+Route::delete('/highlight/{highlight}', [UserController::class, 'removeHighlight'])
+->name('highlight.remove');
 
     // 📰 FEED
     Route::get('/feed', [PostController::class, 'feed'])->name('feed');

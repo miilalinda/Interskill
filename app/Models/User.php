@@ -71,4 +71,9 @@ public function following()
             ->withPivot('nivel')
             ->withTimestamps();
     }
+
+    public function highlights()
+{
+    return $this->hasMany(\App\Models\Highlight::class);
+}
 }

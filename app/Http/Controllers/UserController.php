@@ -23,20 +23,24 @@ class UserController extends Controller
 
     // PERFIL
     public function show(User $user)
-{
-    $user->load(['skills', 'followers', 'following']);
+    {
+        $user->load([
+            'skills',
+            'followers',
+            'following',
+            'highlights'
+        ]);
+        $posts = $user->posts()
+            ->with(['medias', 'likes', 'comments', 'user'])
+            ->latest()
+            ->get();
 
-    $posts = $user->posts()
-        ->with(['medias', 'likes', 'comments', 'user'])
-        ->latest()
-        ->get();
+        $user->posts_count = $posts->count();
+        $user->followers_count = $user->followers->count();
+        $user->following_count = $user->following->count();
 
-    $user->posts_count = $posts->count();
-    $user->followers_count = $user->followers->count();
-    $user->following_count = $user->following->count();
-
-    return view('users.show', compact('user', 'posts'));
-}
+        return view('users.show', compact('user', 'posts'));
+    }
     // FORM CADASTRO
     public function create()
     {
@@ -160,56 +164,56 @@ class UserController extends Controller
 
     // EXPLORAR
     public function explore(Request $request)
-{
-    $users = collect();
+    {
+        $users = collect();
 
-    if ($request->filled('q')) {
-        $q = $request->q;
+        if ($request->filled('q')) {
+            $q = $request->q;
 
-        $users = User::where('id', '!=', auth()->id())
-            ->where(function ($query) use ($q) {
-                $query->where('nome', 'LIKE', "%{$q}%")
-                    ->orWhere('user_nome', 'LIKE', "%{$q}%")
-                    ->orWhereHas('skills', function ($skillQuery) use ($q) {
-                        $skillQuery->where('nome', 'LIKE', "%{$q}%");
-                    });
-            })
-            ->with(['skills'])
-            ->withCount(['posts', 'followers', 'following'])
-            ->latest()
-            ->paginate(9);
+            $users = User::where('id', '!=', auth()->id())
+                ->where(function ($query) use ($q) {
+                    $query->where('nome', 'LIKE', "%{$q}%")
+                        ->orWhere('user_nome', 'LIKE', "%{$q}%")
+                        ->orWhereHas('skills', function ($skillQuery) use ($q) {
+                            $skillQuery->where('nome', 'LIKE', "%{$q}%");
+                        });
+                })
+                ->with(['skills'])
+                ->withCount(['posts', 'followers', 'following'])
+                ->latest()
+                ->paginate(9);
+        }
+
+        return view('users.explore', compact('users'));
     }
-
-    return view('users.explore', compact('users'));
-}
 
     // SEGUIR
     public function follow(User $user)
-{
-    auth()->user()
-        ->following()
-        ->syncWithoutDetaching([$user->id]);
+    {
+        auth()->user()
+            ->following()
+            ->syncWithoutDetaching([$user->id]);
 
-    // cria notificação
-    if (auth()->id() != $user->id) {
+        // cria notificação
+        if (auth()->id() != $user->id) {
 
-        Notification::create([
+            Notification::create([
 
-            'user_id' => $user->id,
+                'user_id' => $user->id,
 
-            'from_user_id' => auth()->id(),
+                'from_user_id' => auth()->id(),
 
-            'type' => 'follow',
+                'type' => 'follow',
 
-            'message' => auth()->user()->nome . ' começou a seguir você.',
+                'message' => auth()->user()->nome . ' começou a seguir você.',
 
-            'url' => route('users.show', auth()->id())
+                'url' => route('users.show', auth()->id())
 
-        ]);
+            ]);
+        }
+
+        return back();
     }
-
-    return back();
-}
 
     // DEIXAR DE SEGUIR
     public function unfollow(User $user)
@@ -281,4 +285,27 @@ class UserController extends Controller
 
         return back()->with('success', 'Foto removida!');
     }
+
+    public function removeHighlight(\App\Models\Highlight $highlight)
+{
+    // impede apagar destaque dos outros
+    if ($highlight->user_id !== auth()->id()) {
+        abort(403);
+    }
+
+    // remove imagem
+    if ($highlight->imagem) {
+        \Storage::disk('public')->delete($highlight->imagem);
+    }
+
+    // remove audio
+    if ($highlight->audio) {
+        \Storage::disk('public')->delete($highlight->audio);
+    }
+
+    // remove destaque do banco
+    $highlight->delete();
+
+    return back()->with('success', 'Destaque removido!');
+}
 }

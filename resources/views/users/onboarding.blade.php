@@ -18,6 +18,7 @@
 
             <input type="text" id="search-skill"
                 class="form-control custom-input"
+                autocomplete="off"
                 placeholder="Digite uma habilidade...">
 
             <div id="results"></div>
