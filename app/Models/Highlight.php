@@ -12,4 +12,14 @@ class Highlight extends Model
         'imagem',
         'audio',
     ];
+
+    public function reactions()
+    {
+        return $this->hasMany(HighlightReaction::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

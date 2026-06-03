@@ -61,13 +61,13 @@
                             <small class="text-muted d-block mb-2">{{ '@' . $user->user_nome }}</small>
 
                             @if($user->skills->count())
-                                <div class="mb-3">
-                                    @foreach($user->skills->take(3) as $skill)
-                                        <span class="badge bg-light text-dark border">
-                                            {{ $skill->nome }}
-                                        </span>
-                                    @endforeach
-                                </div>
+                            <div class="user-skills">
+                                @foreach($user->skills->take(4) as $skill)
+                                    <span class="skill-chip">
+                                        {{ $skill->nome }}
+                                    </span>
+                                @endforeach
+                            </div>
                             @endif
 
                             <div class="d-flex justify-content-around border-top border-bottom py-2 mb-3">

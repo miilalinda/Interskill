@@ -66,11 +66,12 @@ public function following()
 
     // HABILIDADES ✅
     public function skills()
-    {
-        return $this->belongsToMany(\App\Models\Skill::class)
-            ->withPivot('nivel')
-            ->withTimestamps();
-    }
+{
+    return $this->belongsToMany(
+        Skill::class,
+        'skill_user'
+    )->withPivot('nivel');
+}
 
     public function highlights()
 {

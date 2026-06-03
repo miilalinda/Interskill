@@ -164,28 +164,38 @@ class UserController extends Controller
 
     // EXPLORAR
     public function explore(Request $request)
-    {
-        $users = collect();
+{
+    $users = collect();
 
-        if ($request->filled('q')) {
-            $q = $request->q;
+    if ($request->filled('q')) {
 
-            $users = User::where('id', '!=', auth()->id())
-                ->where(function ($query) use ($q) {
-                    $query->where('nome', 'LIKE', "%{$q}%")
-                        ->orWhere('user_nome', 'LIKE', "%{$q}%")
-                        ->orWhereHas('skills', function ($skillQuery) use ($q) {
-                            $skillQuery->where('nome', 'LIKE', "%{$q}%");
-                        });
-                })
-                ->with(['skills'])
-                ->withCount(['posts', 'followers', 'following'])
-                ->latest()
-                ->paginate(9);
-        }
+        $q = trim($request->q);
 
-        return view('users.explore', compact('users'));
+        $users = User::where('id', '!=', auth()->id())
+
+            ->where(function ($query) use ($q) {
+
+                $query->where('nome', 'LIKE', "%{$q}%")
+                    ->orWhere('user_nome', 'LIKE', "%{$q}%")
+                    ->orWhereHas('skills', function ($skill) use ($q) {
+
+                        $skill->where('nome', 'LIKE', "%{$q}%");
+
+                    });
+
+            })
+
+            ->with('skills')
+            ->withCount([
+                'posts',
+                'followers',
+                'following'
+            ])
+            ->paginate(9);
     }
+
+    return view('users.explore', compact('users'));
+}
 
     // SEGUIR
     public function follow(User $user)
@@ -307,5 +317,27 @@ class UserController extends Controller
     $highlight->delete();
 
     return back()->with('success', 'Destaque removido!');
+}
+
+public function reactHighlight(Request $request, \App\Models\Highlight $highlight)
+{
+    $request->validate([
+        'emoji' => 'nullable|string|max:10',
+    ]);
+
+    \App\Models\HighlightReaction::updateOrCreate(
+        [
+            'highlight_id' => $highlight->id,
+            'user_id' => auth()->id(),
+        ],
+        [
+            'emoji' => $request->emoji ?? '❤️',
+        ]
+    );
+
+    return response()->json([
+        'success' => true,
+        'count' => $highlight->reactions()->count(),
+    ]);
 }
 }
