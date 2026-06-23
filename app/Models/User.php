@@ -74,7 +74,7 @@ public function following()
 }
 
     public function highlights()
-{
-    return $this->hasMany(\App\Models\Highlight::class);
-}
+    {
+        return $this->hasMany(Highlight::class);
+    }
 }

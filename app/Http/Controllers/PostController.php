@@ -66,22 +66,23 @@ class PostController extends Controller
     }
 
     public function comment(Request $request, Post $post)
-    {
-        $request->validate([
-            'texto' => 'required'
-        ]);
+{
+    $request->validate([
+        'texto' => 'required|string|max:500'
+    ]);
 
-        Comment::create([
-            'user_id' => $post->user_id,
-            'from_user_id' => auth()->id(),
-            'post_id' => $post->id,
-            'type' => 'like',
-            'message' => auth()->user()->nome . ' curtiu seu post.',
-            'url' => route('posts.show', $post->id),
-        ]);
+    $comment = Comment::create([
+        'user_id' => auth()->id(),
+        'post_id' => $post->id,
+        'texto' => $request->texto,
+    ]);
 
-        return back();
-    }
+    return response()->json([
+        'success' => true,
+        'user' => auth()->user()->user_nome,
+        'texto' => $comment->texto
+    ]);
+}
 
     public function feed()
     {

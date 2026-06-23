@@ -80,8 +80,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/deixar-seguir/{user}', [UserController::class, 'unfollow'])->name('unfollow');
 
     Route::delete('/remove-follower/{user}', [UserController::class, 'removeFollower'])
-    ->name('remove.follower')
-    ->middleware('auth');
+        ->name('remove.follower')
+        ->middleware('auth');
 
     // 🤝 PARCERIAS
     Route::post('/parceria/{user}', [UserController::class, 'solicitarParceria'])->name('parceria.solicitar');
@@ -99,8 +99,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/user/{user}/foto', [UserController::class, 'deleteFoto'])->name('user.deleteFoto');
 
     // ⭐ REMOVER DESTAQUE
-Route::delete('/highlight/{highlight}', [UserController::class, 'removeHighlight'])
-->name('highlight.remove');
+    Route::delete('/highlight/{highlight}', [UserController::class, 'removeHighlight'])
+        ->name('highlight.remove');
 
     // 📰 FEED
     Route::get('/feed', [PostController::class, 'feed'])->name('feed');
@@ -127,8 +127,8 @@ Route::delete('/highlight/{highlight}', [UserController::class, 'removeHighlight
         return response()->json([
             'success' => true
         ]);
-
     });
 
-    Route::post('/skills', [SkillController::class, 'store']);
+    // 🧠 SKILLS (ADICIONAR HABILIDADE)
+    Route::post('/skills', [SkillController::class, 'store'])->name('skills.store');
 });
